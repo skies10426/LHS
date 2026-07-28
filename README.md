@@ -1,5 +1,7 @@
+how to download 
+https://docs.google.com/presentation/d/1SJuV093EsPG8gTbefEtWzB2WFriR8lySzqEFr7YlI6o/edit?usp=sharing
 
-    @sskkies on tiktok
+@sskkies on tiktok
 
 AP classes / extras are by request, im only doing this for classes i take.
 
