@@ -1,0 +1,3068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sskies :: Algebra I Study Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0a0a;
+  --panel:#131314;
+  --panel-2:#1a1a1b;
+  --panel-3:#1f1f21;
+  --line:#2c2c2e;
+  --line-soft:#202022;
+  --white:#f0f0f0;
+  --gray-1:#cfcfcf;
+  --gray-2:#9a9a9c;
+  --gray-3:#6a6a6c;
+  --gray-4:#454547;
+  --glow:rgba(240,240,240,.4);
+  --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 10px 26px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--black);
+  color:var(--gray-1);
+  font-family:'VT323', monospace;
+  font-size:19px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.disp,.nav-label,.pin,.eyebrow,button{font-family:'Press Start 2P', monospace;}
+code,.mono,.formula{font-family:'JetBrains Mono',monospace;}
+
+/* ===== ASCII backdrop ===== */
+#ascii-bg{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 20% 15%, #1c1c1d 0%, #0a0a0a 55%);
+}
+
+/* layout shell */
+.shell{
+  position:relative;
+  z-index:2;
+  display:flex;
+  min-height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  --w-collapsed:66px;
+  --w-expanded:290px;
+  width:var(--w-expanded);
+  flex:none;
+  background:rgba(19,19,20,.86);
+  backdrop-filter:blur(10px);
+  color:var(--gray-1);
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  border-right:1px solid var(--line-soft);
+  transition:width .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.collapsed{width:var(--w-collapsed);}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+
+.sidebar-head{
+  padding:20px 16px 14px;
+  border-bottom:1px solid var(--line-soft);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.sidebar-head .brand{display:flex; align-items:center; gap:10px; min-width:0;}
+.sidebar-head .brand-mark{
+  width:32px;height:32px;flex:none;
+  background:linear-gradient(155deg,#e8e8e8,#3a3a3a 70%);
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Press Start 2P',monospace;
+  font-size:12px;
+  color:#0a0a0a;
+}
+.sidebar-head .tag{
+  display:block;
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  letter-spacing:.06em;
+  color:var(--gray-3);
+  margin-bottom:8px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.sidebar-head h1{
+  font-size:12px;
+  margin:0 0 6px;
+  line-height:1.5;
+  color:var(--white);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sidebar-head p{
+  margin:0;
+  font-size:15px;
+  color:var(--gray-3);
+  font-family:'VT323',monospace;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.sidebar-head .brand-text{min-width:0; overflow:hidden;}
+.sidebar.collapsed .brand-text{display:none;}
+
+.collapse-btn{
+  flex:none;
+  width:26px; height:26px;
+  border-radius:4px;
+  border:1px solid var(--line);
+  background:var(--panel-2);
+  color:var(--gray-2);
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .28s ease, background .15s ease, color .15s ease;
+}
+.collapse-btn:hover{background:var(--panel-3); color:var(--white);}
+.collapse-btn svg{width:13px;height:13px;}
+.sidebar.collapsed .collapse-btn svg{transform:rotate(180deg);}
+
+.nav-group{padding:10px 0 6px;}
+.nav-label{
+  font-family:'Press Start 2P',monospace;
+  font-size:8.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--gray-4);
+  padding:14px 16px 8px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.sidebar.collapsed .nav-label{opacity:0; height:0; padding-top:0; padding-bottom:0; overflow:hidden;}
+.nav-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  text-align:left;
+  background:none;
+  border:none;
+  color:var(--gray-2);
+  font-family:'VT323',monospace;
+  font-size:17px;
+  padding:9px 16px 9px 14px;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  transition:background .12s, color .12s, border-color .12s;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.nav-btn .num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--gray-4);
+  width:20px;
+  flex:none;
+}
+.nav-btn:hover{background:var(--panel-2); color:var(--white);}
+.nav-btn.active{
+  background:var(--panel-3);
+  border-left-color:var(--white);
+  color:var(--white);
+}
+.sidebar-foot{
+  padding:14px 16px 20px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--gray-4);
+  border-top:1px solid var(--line-soft);
+  margin-top:10px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.sidebar-foot .decode{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--gray-2);
+  letter-spacing:.02em;
+}
+.sidebar-foot .decode .cursor{
+  display:inline-block; width:6px; height:11px;
+  background:var(--gray-2); margin-left:2px; vertical-align:-1px;
+  animation:blink 1s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+/* ===== MAIN ===== */
+.main{
+  flex:1;
+  min-width:0;
+  position:relative;
+  background:var(--black);
+}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:rgba(10,10,10,.86);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line-soft);
+  padding:16px 40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.topbar .crumbs{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--gray-3);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.topbar .pagebadge{
+  font-family:'Press Start 2P',monospace;
+  font-size:9px;
+  color:var(--black);
+  background:var(--gray-1);
+  padding:5px 9px;
+  border-radius:3px;
+}
+.content{
+  max-width:880px;
+  margin:0 auto;
+  padding:40px 40px 110px;
+  position:relative;
+  z-index:2;
+}
+.page{display:none;}
+.page.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+.page h2.title{
+  font-family:'Press Start 2P',monospace;
+  font-size:22px;
+  line-height:1.6;
+  margin:0 0 14px;
+  color:var(--white);
+  text-shadow:0 0 20px var(--glow);
+}
+.page .sub{
+  color:var(--gray-2);
+  font-size:18px;
+  margin:0 0 30px;
+  max-width:640px;
+  font-family:'VT323',monospace;
+}
+.tear{
+  border:none;
+  border-top:1px dashed var(--line);
+  margin:30px 0;
+}
+
+/* formula cards */
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-left:4px solid var(--gray-1);
+  border-radius:4px;
+  padding:20px 22px;
+  margin:0 0 22px;
+  box-shadow:var(--shadow);
+}
+.card h3{
+  margin:0 0 12px;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--white);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.card h3 .pin{
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  background:var(--gray-1);
+  color:var(--black);
+  padding:4px 7px;
+  border-radius:3px;
+  letter-spacing:.02em;
+}
+.formula{
+  display:block;
+  font-size:18px;
+  font-weight:600;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:12px 16px;
+  margin:6px 0 14px;
+  color:var(--white);
+  overflow-x:auto;
+}
+.card .row{margin:10px 0; font-size:17.5px;}
+.card .row b{
+  font-family:'Press Start 2P',monospace;
+  font-size:9.5px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--gray-3);
+  display:block;
+  margin-bottom:5px;
+}
+.card .remember{
+  background:var(--panel-2);
+  border:1px dashed var(--gray-3);
+  border-radius:4px;
+  padding:9px 12px;
+  font-size:17px;
+}
+.card .example{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13.5px;
+  background:var(--panel-3);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:9px 12px;
+  color:var(--gray-1);
+}
+
+/* mistakes */
+.mistake{
+  display:flex;
+  gap:16px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-left:4px solid var(--gray-2);
+  border-radius:4px;
+  padding:16px 18px;
+  margin-bottom:14px;
+}
+.mistake .no{
+  font-family:'Press Start 2P',monospace;
+  color:var(--white);
+  font-size:12px;
+  flex:none;
+}
+.mistake .wrong{color:var(--gray-3); font-family:'JetBrains Mono',monospace; font-size:13.5px;}
+.mistake .right{color:var(--white); font-family:'JetBrains Mono',monospace; font-size:13.5px;}
+
+/* top 100 */
+.fact-group{margin-bottom:28px;}
+.fact-group h3{
+  color:var(--white);
+  border-bottom:1px solid var(--line);
+  padding-bottom:8px;
+  font-size:12px;
+}
+.fact-list{list-style:none; margin:14px 0 0; padding:0; counter-reset:fact;}
+.fact-list li{
+  counter-increment:fact;
+  padding:8px 0 8px 42px;
+  position:relative;
+  border-bottom:1px solid var(--line-soft);
+  font-size:17.5px;
+}
+.fact-list li::before{
+  content:counter(fact);
+  position:absolute;
+  left:0; top:7px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--black);
+  background:var(--gray-2);
+  width:24px; height:24px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* cram sheet grid */
+.cram-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.cram-cell{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:12px 14px;
+}
+.cram-cell h4{
+  margin:0 0 8px;
+  font-size:10px;
+  color:var(--white);
+  font-family:'Press Start 2P',monospace;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+.cram-cell .f{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  display:block;
+  margin:4px 0;
+  color:var(--gray-1);
+}
+@media(max-width:640px){.cram-grid{grid-template-columns:1fr;}}
+
+/* checklist (night before) */
+.checklist{list-style:none; margin:0; padding:0;}
+.checklist li{
+  display:flex; gap:12px; align-items:flex-start;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:12px 14px;
+  margin-bottom:10px;
+  font-size:17.5px;
+}
+.checklist .box{
+  flex:none; width:18px; height:18px;
+  border:2px solid var(--gray-2);
+  border-radius:3px;
+  margin-top:3px;
+}
+.timebox{
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  color:var(--black);
+  background:var(--gray-1);
+  padding:4px 8px;
+  border-radius:3px;
+  margin-right:10px;
+  white-space:nowrap;
+}
+
+/* practice tests */
+.qcard{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:16px 18px;
+  margin-bottom:14px;
+}
+.qcard .qhead{
+  display:flex; gap:10px; align-items:baseline;
+  font-family:'VT323',monospace;
+  font-weight:600;
+  font-size:19px;
+  margin-bottom:8px;
+}
+.qcard .qnum{
+  font-family:'Press Start 2P',monospace;
+  color:var(--black);
+  background:var(--gray-1);
+  border-radius:3px;
+  padding:3px 8px;
+  font-size:9px;
+}
+.qcard details{
+  margin-top:10px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:8px 12px;
+}
+.qcard summary{
+  cursor:pointer;
+  font-family:'Press Start 2P',monospace;
+  font-size:9px;
+  color:var(--white);
+}
+.qcard .ans{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13.5px;
+  margin-top:8px;
+  color:var(--gray-1);
+}
+
+.callout{
+  background:var(--panel);
+  border-left:3px solid var(--gray-1);
+  border-radius:4px;
+  padding:12px 16px;
+  margin:16px 0;
+  font-size:17px;
+}
+.callout.warn{border-left-color:var(--gray-2);}
+.callout.tip{border-left-color:var(--gray-3);}
+
+/* vocab / step lists (new) */
+.vocab-list{list-style:none; margin:10px 0 0; padding:0;}
+.vocab-list li{
+  padding:8px 0;
+  border-bottom:1px solid var(--line-soft);
+  font-size:17.5px;
+}
+.vocab-list li b{color:var(--white); font-family:'JetBrains Mono',monospace; font-size:15px;}
+.steps-list{margin:10px 0 0; padding-left:22px;}
+.steps-list li{margin-bottom:8px; font-size:17.5px;}
+.tag-pill{
+  display:inline-block;
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  letter-spacing:.03em;
+  color:var(--gray-3);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:3px 7px;
+  margin:2px 6px 2px 0;
+}
+
+/* graphs (new) */
+.graph-wrap{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:14px;
+  margin:10px 0 18px;
+  box-shadow:var(--shadow);
+}
+.graph-wrap svg{display:block; width:100%; height:auto;}
+.graph-caption{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  color:var(--gray-3);
+  text-align:center;
+  margin-top:8px;
+}
+.graph-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
+.graph-row .graph-wrap{margin:0;}
+@media(max-width:760px){.graph-row{grid-template-columns:1fr;}}
+
+/* quiz (new) */
+.quiz-q{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:14px 16px;
+  margin-bottom:12px;
+}
+.quiz-q .qn{font-size:17.5px; color:var(--gray-1); margin-bottom:8px;}
+.quiz-q .opts{display:flex; flex-direction:column; gap:6px; margin-bottom:8px;}
+.quiz-q .opt{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13.5px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:7px 10px;
+}
+.quiz-q details{
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:8px 12px;
+}
+.quiz-q summary{cursor:pointer; font-family:'Press Start 2P',monospace; font-size:9px; color:var(--white);}
+.quiz-q .ans{font-family:'JetBrains Mono',monospace; font-size:13.5px; margin-top:8px; color:var(--gray-1);}
+
+/* calculator (new) */
+.calc-screen{
+  background:var(--black);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:16px;
+  margin-bottom:12px;
+  text-align:right;
+}
+.calc-screen .calc-hist{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--gray-3);
+  min-height:16px;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+.calc-screen .calc-expr{
+  font-family:'JetBrains Mono',monospace;
+  font-size:28px;
+  color:var(--white);
+  overflow-x:auto;
+  white-space:nowrap;
+  margin-top:4px;
+}
+.calc-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:8px;
+}
+.calc-btn{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  color:var(--gray-1);
+  padding:14px 0;
+  cursor:pointer;
+  transition:background .1s, color .1s, transform .05s;
+}
+.calc-btn:hover{background:var(--panel-3); color:var(--white);}
+.calc-btn:active{transform:scale(.95);}
+.calc-btn.op{color:var(--white); border-color:var(--gray-3);}
+.calc-btn.eq{background:var(--gray-1); color:var(--black); font-weight:700; border-color:var(--gray-1);}
+.calc-btn.eq:hover{background:var(--white);}
+.calc-btn.wide{grid-column:span 2;}
+
+.tool-tabs{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 16px;}
+.tool-tab{
+  font-family:'Press Start 2P',monospace;
+  font-size:8.5px;
+  letter-spacing:.02em;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  color:var(--gray-2);
+  padding:9px 12px;
+  border-radius:4px;
+  cursor:pointer;
+}
+.tool-tab:hover{color:var(--white);}
+.tool-tab.active{background:var(--gray-1); color:var(--black); border-color:var(--gray-1);}
+.tool-body{display:none;}
+.tool-body.active{display:block;}
+.tool-fields{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+.tool-field label{
+  display:block;
+  font-family:'Press Start 2P',monospace;
+  font-size:8.5px;
+  color:var(--gray-3);
+  margin-bottom:6px;
+  letter-spacing:.02em;
+}
+.tool-field input{
+  width:100%;
+  font-family:'JetBrains Mono',monospace;
+  font-size:15px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  color:var(--white);
+  padding:8px 10px;
+}
+.tool-field input:focus{outline:none; border-color:var(--gray-1);}
+.tool-go{
+  font-family:'Press Start 2P',monospace;
+  font-size:9.5px;
+  background:var(--gray-1);
+  color:var(--black);
+  border:none;
+  border-radius:4px;
+  padding:11px 18px;
+  cursor:pointer;
+  margin-bottom:14px;
+}
+.tool-go:hover{background:var(--white);}
+.result-box{
+  background:var(--panel-2);
+  border:1px dashed var(--gray-3);
+  border-radius:4px;
+  padding:12px 14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:14.5px;
+  color:var(--gray-1);
+  min-height:20px;
+  white-space:pre-line;
+}
+@media(max-width:600px){.tool-fields{grid-template-columns:1fr;}}
+
+/* TI-84+ style calculator additions (new) */
+.ti-tabs{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px;}
+.ti-tab{
+  font-family:'Press Start 2P',monospace;
+  font-size:9px;
+  letter-spacing:.02em;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  color:var(--gray-2);
+  padding:10px 14px;
+  border-radius:4px;
+  cursor:pointer;
+}
+.ti-tab:hover{color:var(--white);}
+.ti-tab.active{background:var(--gray-1); color:var(--black); border-color:var(--gray-1);}
+.ti-mode{display:none;}
+.ti-mode.active{display:block;}
+.calc-modebar{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; align-items:center;}
+.mode-pill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  color:var(--gray-2);
+  padding:5px 10px;
+  border-radius:3px;
+  cursor:pointer;
+}
+.mode-pill.active{background:var(--gray-1); color:var(--black); border-color:var(--gray-1);}
+.calc-grid-6{grid-template-columns:repeat(6, 1fr);}
+.calc-btn.fn{font-size:12px; padding:10px 0; color:var(--gray-1); border-color:var(--line);}
+.calc-btn.fn:hover{color:var(--white);}
+@media(max-width:700px){.calc-grid-6{grid-template-columns:repeat(3, 1fr);}}
+#graphCanvas, #regCanvas{width:100%; height:auto; display:block; background:var(--black); border-radius:4px;}
+
+table.regtable{width:100%; border-collapse:collapse; margin:14px 0; font-size:16.5px;}
+table.regtable th, table.regtable td{border:1px solid var(--line); padding:8px 10px; text-align:left;}
+table.regtable th{background:var(--panel-3); color:var(--white); font-family:'Press Start 2P',monospace; font-size:9px; letter-spacing:.02em;}
+table.regtable tr:nth-child(even) td{background:var(--panel-2);}
+
+@media(max-width:860px){
+  .shell{flex-direction:column;}
+  .sidebar{width:100%; height:auto; position:relative;}
+  .content{padding:24px 18px 80px;}
+  .topbar{padding:12px 18px;}
+}
+</style>
+</head>
+<canvas id="ascii-bg"></canvas>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div class="brand-text">
+          <span class="tag">NYS ALGEBRA I</span>
+          <h1>Study Terminal</h1>
+          <p>formulas + regents prep</p>
+        </div>
+      </div>
+      <button class="collapse-btn" id="collapseBtn" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Start Here</div>
+      <button class="nav-btn active" data-page="overview"><span class="num">00</span> Overview</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Foundations</div>
+      <button class="nav-btn" data-page="orderops"><span class="num">01</span> Order of Operations</button>
+      <button class="nav-btn" data-page="integersabs"><span class="num">02</span> Integers &amp; Abs. Value</button>
+      <button class="nav-btn" data-page="fracdec"><span class="num">03</span> Fractions &amp; Decimals</button>
+      <button class="nav-btn" data-page="scinotation"><span class="num">04</span> Scientific Notation</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Expressions &amp; Equations</div>
+      <button class="nav-btn" data-page="expressions"><span class="num">05</span> Expressions</button>
+      <button class="nav-btn" data-page="equations"><span class="num">06</span> Multi-Step Equations</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Formula Sheets</div>
+      <button class="nav-btn" data-page="slope"><span class="num">07</span> Slope Formulas</button>
+      <button class="nav-btn" data-page="distance"><span class="num">08</span> Distance Formula</button>
+      <button class="nav-btn" data-page="midpoint"><span class="num">09</span> Midpoint Formula</button>
+      <button class="nav-btn" data-page="inequalities"><span class="num">10</span> Inequalities</button>
+      <button class="nav-btn" data-page="systems"><span class="num">11</span> Systems of Equations</button>
+      <button class="nav-btn" data-page="polynomials"><span class="num">12</span> Polynomial Operations</button>
+      <button class="nav-btn" data-page="quadratic"><span class="num">13</span> Quadratic Formula</button>
+      <button class="nav-btn" data-page="parabola"><span class="num">14</span> Graphing Parabolas</button>
+      <button class="nav-btn" data-page="exponents"><span class="num">15</span> Exponent Rules</button>
+      <button class="nav-btn" data-page="factoring"><span class="num">16</span> Factoring Patterns</button>
+      <button class="nav-btn" data-page="foil"><span class="num">17</span> FOIL</button>
+      <button class="nav-btn" data-page="radicals"><span class="num">18</span> Radical Rules</button>
+      <button class="nav-btn" data-page="functions"><span class="num">19</span> Function Formulas</button>
+      <button class="nav-btn" data-page="domainrange"><span class="num">20</span> Domain &amp; Range</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Data &amp; Statistics</div>
+      <button class="nav-btn" data-page="stats"><span class="num">21</span> Statistics Basics</button>
+      <button class="nav-btn" data-page="scatter"><span class="num">22</span> Scatter &amp; Correlation</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Tools</div>
+      <button class="nav-btn" data-page="calculator"><span class="num">23</span> Calculator</button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Test Prep</div>
+      <button class="nav-btn" data-page="regents"><span class="num">24</span> Regents Review</button>
+      <button class="nav-btn" data-page="mistakes"><span class="num">25</span> Common Mistakes</button>
+      <button class="nav-btn" data-page="top100"><span class="num">26</span> Top 100 Facts</button>
+      <button class="nav-btn" data-page="cram"><span class="num">27</span> Final Cram Sheet</button>
+      <button class="nav-btn" data-page="nightbefore"><span class="num">28</span> Night Before Guide</button>
+      <button class="nav-btn" data-page="practice1"><span class="num">29</span> Mixed Practice — Set 1</button>
+      <button class="nav-btn" data-page="practice2"><span class="num">30</span> Mixed Practice — Set 2</button>
+      <button class="nav-btn" data-page="practice3"><span class="num">31</span> Mixed Practice — Set 3</button>
+      <button class="nav-btn" data-page="practice4"><span class="num">32</span> Mixed Practice — Set 4</button>
+      <button class="nav-btn" data-page="miniquiz"><span class="num">33</span> Mini Quizzes</button>
+      <button class="nav-btn" data-page="examstyle"><span class="num">34</span> Exam-Style Response</button>
+    </div>
+
+
+    <div class="sidebar-foot">
+      <span class="decode" id="sidebarDecode">&nbsp;</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="crumbs" id="crumbs">Study Terminal / Overview</span>
+      <span class="pagebadge" id="pageBadge">00 / 34</span>
+    </div>
+    <div class="content" id="content"><!-- injected --></div>
+  </div>
+</div>
+
+<!-- ============ TEMPLATES ============ -->
+
+
+<!-- ============ TEMPLATES ============ -->
+
+<template id="tpl-overview">
+  <h2 class="title">Everything you need for Algebra I</h2>
+  <p class="sub">A full course binder — foundations, formula sheets, graphs, and test prep — built around the actual NYS Algebra I Regents exam. Use the tabs on the left to jump anywhere. 34 pages, 50 mixed-practice problems, and a quiz bank all in one place.</p>
+
+  <div class="callout tip"><b>How to use this binder:</b> Start with Foundations if any basics feel shaky, then work through Expressions &amp; Equations and the Formula Sheets — each card explains what a rule means, when to reach for it, and how to remember it, with graphs where they help. Move to Test Prep once the formulas feel automatic, and finish with the mixed-practice sets, Mini Quizzes, and the cram sheet the night before.</div>
+
+  <hr class="tear">
+  <h3>What's inside</h3>
+  <table class="regtable">
+    <tr><th>Foundations</th><th>Formula Sheets</th><th>Test Prep</th></tr>
+    <tr><td>Order of operations</td><td>Slope (4 forms + ∥/⟂)</td><td>Regents exam review</td></tr>
+    <tr><td>Integers &amp; absolute value</td><td>Distance &amp; midpoint</td><td>Common mistakes</td></tr>
+    <tr><td>Fractions &amp; decimals</td><td>Inequalities (+ graphing)</td><td>Top 100 Algebra facts</td></tr>
+    <tr><td>Scientific notation</td><td>Systems of equations</td><td>Final cram sheet</td></tr>
+    <tr><td>Expressions &amp; like terms</td><td>Polynomial operations</td><td>Night Before the Test guide</td></tr>
+    <tr><td>Multi-step equations</td><td>Quadratic formula &amp; parabolas</td><td>Mixed practice — 4 sets (50 Qs)</td></tr>
+    <tr><td></td><td>Exponents, factoring, FOIL, radicals</td><td>Mini quizzes by unit</td></tr>
+    <tr><td></td><td>Functions &amp; domain/range</td><td>Exam-style extended response</td></tr>
+    <tr><td></td><td>Statistics &amp; scatter plots</td><td></td></tr>
+  </table>
+
+  <div class="callout"><b>New here?</b> Every formula card follows the same shape: what it means, when to use it, a memory trick, and a worked example. Topics with a visual component include a graph right in the card, drawn to the same monochrome style as the rest of the binder.</div>
+</template>
+
+<template id="tpl-calculator">
+  <h2 class="title">TI-84+ Style Calculator</h2>
+  <p class="sub">A working scientific calculator with the core TI-84 Plus toolset — trig, logs, factorials/combinatorics, a Y= grapher, a table generator, and 1-Var/2-Var statistics — plus the five algebra solvers.</p>
+
+  <div class="ti-tabs">
+    <button class="ti-tab active" data-mode="calc" onclick="tiShow('calc')">CALC</button>
+    <button class="ti-tab" data-mode="graph" onclick="tiShow('graph')">Y= / GRAPH</button>
+    <button class="ti-tab" data-mode="table" onclick="tiShow('table')">TABLE</button>
+    <button class="ti-tab" data-mode="stat" onclick="tiShow('stat')">STAT</button>
+    <button class="ti-tab" data-mode="algebra" onclick="tiShow('algebra')">ALGEBRA TOOLS</button>
+  </div>
+
+  <!-- ============ CALC MODE ============ -->
+  <div class="ti-mode active" data-mode="calc">
+    <div class="card">
+      <h3><span class="pin">TOOL</span> Scientific Calculator</h3>
+      <div class="calc-modebar">
+        <button class="mode-pill active" id="degBtn" onclick="setAngleMode('deg')">DEG</button>
+        <button class="mode-pill" id="radBtn" onclick="setAngleMode('rad')">RAD</button>
+        <span class="mode-pill" style="cursor:default;">X = <span id="xStoreDisplay">0</span></span>
+      </div>
+      <div class="calc-screen">
+        <div class="calc-hist" id="calcHist">&nbsp;</div>
+        <div class="calc-expr" id="calcExpr">0</div>
+      </div>
+
+      <div class="calc-grid calc-grid-6">
+        <button class="calc-btn fn" onclick="calcInput('sin(')">sin</button>
+        <button class="calc-btn fn" onclick="calcInput('cos(')">cos</button>
+        <button class="calc-btn fn" onclick="calcInput('tan(')">tan</button>
+        <button class="calc-btn fn" onclick="calcInput('asin(')">sin⁻¹</button>
+        <button class="calc-btn fn" onclick="calcInput('acos(')">cos⁻¹</button>
+        <button class="calc-btn fn" onclick="calcInput('atan(')">tan⁻¹</button>
+
+        <button class="calc-btn fn" onclick="calcInput('log(')">log</button>
+        <button class="calc-btn fn" onclick="calcInput('ln(')">ln</button>
+        <button class="calc-btn fn" onclick="calcInput('10^(')">10ˣ</button>
+        <button class="calc-btn fn" onclick="calcInput('e^(')">eˣ</button>
+        <button class="calc-btn fn" onclick="calcInput('pi')">π</button>
+        <button class="calc-btn fn" onclick="calcInput('e')">e</button>
+
+        <button class="calc-btn fn" onclick="calcFactorial()">x!</button>
+        <button class="calc-btn fn" onclick="calcInput('ncr(')">nCr</button>
+        <button class="calc-btn fn" onclick="calcInput('npr(')">nPr</button>
+        <button class="calc-btn fn" onclick="calcInput('mod(')">mod</button>
+        <button class="calc-btn fn" onclick="calcInput('abs(')">|x|</button>
+        <button class="calc-btn fn" onclick="calcReciprocal()">1/x</button>
+
+        <button class="calc-btn fn" onclick="calcInput('Ans')">Ans</button>
+        <button class="calc-btn fn" onclick="calcStoX()">STO→X</button>
+        <button class="calc-btn fn" onclick="calcInput('x')">X</button>
+        <button class="calc-btn fn" onclick="calcInput('nthroot(')">ⁿ√</button>
+        <button class="calc-btn fn" onclick="calcInput(',')">,</button>
+        <button class="calc-btn fn" onclick="calcInput('-(')">(−)</button>
+      </div>
+
+      <div class="calc-grid" style="margin-top:8px;">
+        <button class="calc-btn" onclick="calcClear()">C</button>
+        <button class="calc-btn" onclick="calcBackspace()">⌫</button>
+        <button class="calc-btn" onclick="calcInput('(')">(</button>
+        <button class="calc-btn" onclick="calcInput(')')">)</button>
+
+        <button class="calc-btn" onclick="calcInput('7')">7</button>
+        <button class="calc-btn" onclick="calcInput('8')">8</button>
+        <button class="calc-btn" onclick="calcInput('9')">9</button>
+        <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+
+        <button class="calc-btn" onclick="calcInput('4')">4</button>
+        <button class="calc-btn" onclick="calcInput('5')">5</button>
+        <button class="calc-btn" onclick="calcInput('6')">6</button>
+        <button class="calc-btn op" onclick="calcInput('*')">×</button>
+
+        <button class="calc-btn" onclick="calcInput('1')">1</button>
+        <button class="calc-btn" onclick="calcInput('2')">2</button>
+        <button class="calc-btn" onclick="calcInput('3')">3</button>
+        <button class="calc-btn op" onclick="calcInput('-')">−</button>
+
+        <button class="calc-btn" onclick="calcInput('0')">0</button>
+        <button class="calc-btn" onclick="calcInput('.')">.</button>
+        <button class="calc-btn op" onclick="calcInput('^')">^</button>
+        <button class="calc-btn op" onclick="calcInput('+')">+</button>
+
+        <button class="calc-btn" onclick="calcInput('sqrt(')">√(</button>
+        <button class="calc-btn" onclick="calcSquare()">x²</button>
+        <button class="calc-btn" onclick="calcPercent()">%</button>
+        <button class="calc-btn eq" onclick="calcEvaluate()">=</button>
+      </div>
+      <div class="callout tip" style="margin-top:14px;"><b>Tip:</b> Supports implicit multiplication (<code>2pi</code>, <code>3(x+1)</code>), factorial <code>5!</code>, combinatorics <code>ncr(5,2)</code>, <code>npr(5,2)</code>, <code>mod(a,b)</code>, and <code>nthroot(8,3)</code> for cube roots and beyond. DEG/RAD affects every trig function.</div>
+    </div>
+  </div>
+
+  <!-- ============ GRAPH MODE ============ -->
+  <div class="ti-mode" data-mode="graph">
+    <div class="card">
+      <h3><span class="pin">Y=</span> Function Entry</h3>
+      <div class="tool-fields" style="grid-template-columns:1fr;">
+        <div class="tool-field"><label>Y&#8321; =</label><input type="text" id="graphY1" value="x^2-3x-4"></div>
+        <div class="tool-field"><label>Y&#8322; = (optional)</label><input type="text" id="graphY2" value=""></div>
+      </div>
+      <h3 style="margin-top:4px;"><span class="pin">WINDOW</span></h3>
+      <div class="tool-fields">
+        <div class="tool-field"><label>Xmin</label><input type="number" id="winXmin" value="-10"></div>
+        <div class="tool-field"><label>Xmax</label><input type="number" id="winXmax" value="10"></div>
+        <div class="tool-field"><label>Ymin</label><input type="number" id="winYmin" value="-10"></div>
+        <div class="tool-field"><label>Ymax</label><input type="number" id="winYmax" value="10"></div>
+      </div>
+      <button class="tool-go" onclick="drawGraph()">GRAPH</button>
+      <div class="graph-wrap"><canvas id="graphCanvas" width="640" height="420"></canvas></div>
+      <div class="result-box" id="graphInfo">Zeros and extrema (found by scanning the window) will appear here after graphing.</div>
+    </div>
+  </div>
+
+  <!-- ============ TABLE MODE ============ -->
+  <div class="ti-mode" data-mode="table">
+    <div class="card">
+      <h3><span class="pin">TBLSET</span> Table of Values</h3>
+      <div class="tool-fields">
+        <div class="tool-field"><label>Y&#8321; =</label><input type="text" id="tableY1" value="x^2-3x-4"></div>
+        <div class="tool-field"><label>TblStart</label><input type="number" id="tblStart" value="-5"></div>
+        <div class="tool-field"><label>&Delta;Tbl</label><input type="number" id="tblStep" value="1"></div>
+      </div>
+      <button class="tool-go" onclick="buildTable()">GENERATE TABLE</button>
+      <div style="overflow-x:auto;"><table class="regtable" id="tableOut"><tr><th>X</th><th>Y₁</th></tr></table></div>
+    </div>
+  </div>
+
+  <!-- ============ STAT MODE ============ -->
+  <div class="ti-mode" data-mode="stat">
+    <div class="card">
+      <h3><span class="pin">1-VAR</span> Single-List Statistics</h3>
+      <div class="tool-field"><label>List (comma-separated)</label><input type="text" id="stat1List" value="4,7,7,9,13,15,20"></div>
+      <button class="tool-go" onclick="compute1VarStats()">CALCULATE</button>
+      <div class="result-box" id="stat1Result">Result will appear here.</div>
+    </div>
+    <div class="card">
+      <h3><span class="pin">2-VAR</span> Linear Regression</h3>
+      <div class="tool-fields">
+        <div class="tool-field"><label>X List</label><input type="text" id="statX" value="1,2,3,4,5"></div>
+        <div class="tool-field"><label>Y List</label><input type="text" id="statY" value="3,5,8,10,13"></div>
+      </div>
+      <button class="tool-go" onclick="computeRegression()">CALCULATE</button>
+      <div class="result-box" id="statRegResult">Result will appear here.</div>
+      <div class="graph-wrap"><canvas id="regCanvas" width="560" height="380"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ============ ALGEBRA TOOLS MODE ============ -->
+  <div class="ti-mode" data-mode="algebra">
+    <div class="card">
+      <h3><span class="pin">TOOL</span> Algebra Solvers</h3>
+      <div class="tool-tabs" id="toolTabs">
+        <button class="tool-tab active" data-tool="slope" onclick="showTool('slope')">Slope &amp; Line</button>
+        <button class="tool-tab" data-tool="distmid" onclick="showTool('distmid')">Distance &amp; Midpoint</button>
+        <button class="tool-tab" data-tool="linear" onclick="showTool('linear')">Linear Equation</button>
+        <button class="tool-tab" data-tool="quad" onclick="showTool('quad')">Quadratic Solver</button>
+        <button class="tool-tab" data-tool="sys" onclick="showTool('sys')">System Solver</button>
+      </div>
+
+      <div class="tool-body active" data-tool="slope">
+        <p class="sub" style="margin-bottom:12px;">Enter two points to get the slope and the full line equation.</p>
+        <div class="tool-fields">
+          <div class="tool-field"><label>x&#8321;</label><input type="number" id="slopeX1" value="1"></div>
+          <div class="tool-field"><label>y&#8321;</label><input type="number" id="slopeY1" value="2"></div>
+          <div class="tool-field"><label>x&#8322;</label><input type="number" id="slopeX2" value="4"></div>
+          <div class="tool-field"><label>y&#8322;</label><input type="number" id="slopeY2" value="8"></div>
+        </div>
+        <button class="tool-go" onclick="computeSlope()">CALCULATE</button>
+        <div class="result-box" id="slopeResult">Result will appear here.</div>
+      </div>
+
+      <div class="tool-body" data-tool="distmid">
+        <p class="sub" style="margin-bottom:12px;">Enter two points to get the distance between them and their midpoint.</p>
+        <div class="tool-fields">
+          <div class="tool-field"><label>x&#8321;</label><input type="number" id="dmX1" value="1"></div>
+          <div class="tool-field"><label>y&#8321;</label><input type="number" id="dmY1" value="2"></div>
+          <div class="tool-field"><label>x&#8322;</label><input type="number" id="dmX2" value="4"></div>
+          <div class="tool-field"><label>y&#8322;</label><input type="number" id="dmY2" value="6"></div>
+        </div>
+        <button class="tool-go" onclick="computeDistMid()">CALCULATE</button>
+        <div class="result-box" id="dmResult">Result will appear here.</div>
+      </div>
+
+      <div class="tool-body" data-tool="linear">
+        <p class="sub" style="margin-bottom:12px;">Solves ax + b = c for x.</p>
+        <div class="tool-fields">
+          <div class="tool-field"><label>a</label><input type="number" id="linA" value="3"></div>
+          <div class="tool-field"><label>b</label><input type="number" id="linB" value="5"></div>
+          <div class="tool-field"><label>c</label><input type="number" id="linC" value="20"></div>
+        </div>
+        <button class="tool-go" onclick="computeLinear()">CALCULATE</button>
+        <div class="result-box" id="linResult">Result will appear here.</div>
+      </div>
+
+      <div class="tool-body" data-tool="quad">
+        <p class="sub" style="margin-bottom:12px;">Solves ax² + bx + c = 0 — shows the discriminant, roots, and vertex.</p>
+        <div class="tool-fields">
+          <div class="tool-field"><label>a</label><input type="number" id="quadA" value="1"></div>
+          <div class="tool-field"><label>b</label><input type="number" id="quadB" value="-5"></div>
+          <div class="tool-field"><label>c</label><input type="number" id="quadC" value="6"></div>
+        </div>
+        <button class="tool-go" onclick="computeQuad()">CALCULATE</button>
+        <div class="result-box" id="quadResult">Result will appear here.</div>
+      </div>
+
+      <div class="tool-body" data-tool="sys">
+        <p class="sub" style="margin-bottom:12px;">Solves a&#8321;x + b&#8321;y = c&#8321; and a&#8322;x + b&#8322;y = c&#8322; using elimination.</p>
+        <div class="tool-fields">
+          <div class="tool-field"><label>a&#8321;</label><input type="number" id="sysA1" value="2"></div>
+          <div class="tool-field"><label>b&#8321;</label><input type="number" id="sysB1" value="1"></div>
+          <div class="tool-field"><label>c&#8321;</label><input type="number" id="sysC1" value="9"></div>
+          <div class="tool-field"><label>a&#8322;</label><input type="number" id="sysA2" value="1"></div>
+          <div class="tool-field"><label>b&#8322;</label><input type="number" id="sysB2" value="-1"></div>
+          <div class="tool-field"><label>c&#8322;</label><input type="number" id="sysC2" value="3"></div>
+        </div>
+        <button class="tool-go" onclick="computeSystem()">CALCULATE</button>
+        <div class="result-box" id="sysResult">Result will appear here.</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-orderops">
+  <h2 class="title">Order of Operations</h2>
+  <p class="sub">The agreed-upon sequence for evaluating any expression, so everyone gets the same answer from the same problem.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> PEMDAS</h3>
+    <span class="formula">Parentheses → Exponents → Multiplication/Division (left→right) → Addition/Subtraction (left→right)</span>
+    <div class="row"><b>What it means</b> Work the innermost grouping symbols first, then powers and roots, then all multiplying and dividing in the order they appear, then all adding and subtracting in the order they appear.</div>
+    <div class="row"><b>When to use it</b> Every time you simplify a numerical or algebraic expression with more than one operation.</div>
+    <div class="remember"><b>Remember it:</b> "Please Excuse My Dear Aunt Sally" — but Multiplication/Division are a tied pair (do them left to right), and so are Addition/Subtraction.</div>
+  </div>
+
+  <div class="card">
+    <h3>Vocabulary</h3>
+    <ul class="vocab-list">
+      <li><b>Expression</b> — a math phrase with numbers, variables, and operations but no equals sign.</li>
+      <li><b>Grouping symbol</b> — parentheses ( ), brackets [ ], or a fraction bar; work inside these first.</li>
+      <li><b>Exponent</b> — tells how many times a base multiplies itself.</li>
+    </ul>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Evaluate: 3 + 4 × 2</div>
+  <details><summary>Show Answer</summary><div class="ans">Multiply first: 4×2=8, then add: 3+8 = 11</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Evaluate: (5 + 3)² − 2 × 6</div>
+  <details><summary>Show Answer</summary><div class="ans">Parentheses: 8² = 64, then 64 − 12 = 52</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Evaluate: 4 + [2(9 − 5)]² ÷ 8</div>
+  <details><summary>Show Answer</summary><div class="ans">Inner parens: 9−5=4 → 2(4)=8 → 8²=64 → 64÷8=8 → 4+8=12</div></details></div>
+
+  <div class="callout"><b>What if we change something?</b> Move the exponent onto only part of the expression, add a negative sign out front, or nest a fraction bar as a grouping symbol — each one changes which piece gets evaluated first, but the P→E→MD→AS order itself never changes.</div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> treating multiplication as always before division (or addition always before subtraction). They're tied ranks — work left to right.<br><span class="wrong">Wrong: 8 ÷ 4 × 2 = 8 ÷ 8 = 1</span><br><span class="right">Right: left to right → 8 ÷ 4 = 2, then 2 × 2 = 4</span></div></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">A phone plan costs $20 plus $0.10 per text: total = 20 + 0.10 × (number of texts). PEMDAS is exactly why you multiply the per-text rate by the count before adding the base fee — reversing the order would badly overcharge or undercharge.</div></div>
+</template>
+
+<template id="tpl-integersabs">
+  <h2 class="title">Integers &amp; Absolute Value</h2>
+  <p class="sub">Rules for adding, subtracting, multiplying, and dividing positive and negative numbers, plus how far a number sits from zero.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Adding &amp; Subtracting Integers</h3>
+    <div class="row"><b>Same signs</b> add the numbers, keep the sign. <b>Different signs</b> subtract the smaller absolute value from the larger, keep the sign of the bigger one.</div>
+    <div class="remember"><b>Remember it:</b> Subtracting is "add the opposite" — a − b = a + (−b).</div>
+    <div class="example">−7 + 3 = −4      5 − 9 = 5 + (−9) = −4</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Multiplying &amp; Dividing Integers</h3>
+    <span class="formula">(same signs) → positive     (different signs) → negative</span>
+    <div class="remember"><b>Remember it:</b> Count the negative signs — an even number of negatives gives a positive result, an odd number gives a negative result.</div>
+    <div class="example">(−3)(−4) = 12      (−3)(4) = −12      −20 ÷ (−5) = 4</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">DEFINITION</span> Absolute Value</h3>
+    <span class="formula">|a| = distance from a to 0 on the number line (always ≥ 0)</span>
+    <div class="remember"><b>Remember it:</b> Absolute value bars erase the sign — whatever is inside comes out non-negative.</div>
+    <div class="example">|−8| = 8      |8| = 8      −|−5| = −5 (the outside negative still applies after the bars strip the inside)</div>
+  </div>
+
+  <div class="graph-wrap">
+    <svg viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="45" x2="300" y2="45" stroke="#6a6a6c" stroke-width="1.5"/>
+      <g stroke="#6a6a6c" stroke-width="1.5">
+        <line x1="60" y1="40" x2="60" y2="50"/><line x1="100" y1="40" x2="100" y2="50"/>
+        <line x1="140" y1="40" x2="140" y2="50"/><line x1="180" y1="40" x2="180" y2="50"/>
+        <line x1="220" y1="40" x2="220" y2="50"/><line x1="260" y1="40" x2="260" y2="50"/>
+      </g>
+      <g font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">
+        <text x="60" y="65">-4</text><text x="100" y="65">-2</text><text x="140" y="65">0</text>
+        <text x="180" y="65">2</text><text x="220" y="65">4</text><text x="260" y="65">6</text>
+      </g>
+      <circle cx="60" cy="45" r="5" fill="#f0f0f0"/>
+      <path d="M60,20 L140,20" stroke="#f0f0f0" stroke-width="2" stroke-dasharray="3,3"/>
+      <text x="100" y="14" font-family="JetBrains Mono, monospace" font-size="11" fill="#f0f0f0" text-anchor="middle">distance = 4</text>
+    </svg>
+    <div class="graph-caption">|−4| measures the 4 units between −4 and 0 — the distance is always positive.</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Simplify: −6 + (−2)</div>
+  <details><summary>Show Answer</summary><div class="ans">−8 (same signs, add and keep the sign)</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Simplify: |−9| − |4|</div>
+  <details><summary>Show Answer</summary><div class="ans">9 − 4 = 5</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Simplify: −3(−2) − |−10| ÷ 2</div>
+  <details><summary>Show Answer</summary><div class="ans">6 − 5 = 1</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> assuming absolute value bars make everything inside AND outside positive.<br><span class="wrong">Wrong: −|3| = 3</span><br><span class="right">Right: −|3| = −(3) = −3 — only what's inside the bars gets flipped positive</span></div></div>
+</template>
+
+<template id="tpl-fracdec">
+  <h2 class="title">Fractions &amp; Decimals</h2>
+  <p class="sub">Converting between the two forms and operating on fractions cleanly.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Adding/Subtracting Fractions</h3>
+    <span class="formula">a/b ± c/d = (ad ± bc) / bd  (using a common denominator)</span>
+    <div class="remember"><b>Remember it:</b> Find a common denominator first — you can never add or subtract fraction "tops" until the "bottoms" match.</div>
+    <div class="example">1/4 + 1/6 → common denominator 12 → 3/12 + 2/12 = 5/12</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Multiplying/Dividing Fractions</h3>
+    <span class="formula">a/b · c/d = ac/bd       a/b ÷ c/d = a/b · d/c</span>
+    <div class="remember"><b>Remember it:</b> "Keep, Change, Flip" for division — keep the first fraction, change ÷ to ×, flip the second fraction.</div>
+    <div class="example">2/3 ÷ 4/5 = 2/3 · 5/4 = 10/12 = 5/6</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">CONVERSION</span> Fraction ⇄ Decimal</h3>
+    <div class="row">Fraction → decimal: divide the numerator by the denominator. Decimal → fraction: write the decimal over a power of 10 matching its place value, then simplify.</div>
+    <div class="example">3/8 = 0.375      0.375 = 375/1000 = 3/8</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Add: 1/2 + 1/4</div>
+  <details><summary>Show Answer</summary><div class="ans">2/4 + 1/4 = 3/4</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Multiply: 3/5 × 2/9</div>
+  <details><summary>Show Answer</summary><div class="ans">6/45 = 2/15</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Simplify: (2/3 + 1/6) ÷ 5/4</div>
+  <details><summary>Show Answer</summary><div class="ans">4/6+1/6=5/6 → 5/6 ÷ 5/4 = 5/6 × 4/5 = 20/30 = 2/3</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> adding fractions by adding tops and bottoms straight across.<br><span class="wrong">Wrong: 1/2 + 1/3 = 2/5</span><br><span class="right">Right: common denominator 6 → 3/6 + 2/6 = 5/6</span></div></div>
+</template>
+
+<template id="tpl-scinotation">
+  <h2 class="title">Scientific Notation</h2>
+  <p class="sub">A compact way to write very large or very small numbers.</p>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Scientific Notation Form</h3>
+    <span class="formula">a × 10<sup>n</sup>,  where 1 ≤ a &lt; 10 and n is an integer</span>
+    <div class="row"><b>What it means</b> A single-digit-times-a-power-of-ten way to write huge or tiny numbers without a long string of zeros.</div>
+    <div class="remember"><b>Remember it:</b> Positive exponent → big number (move decimal right). Negative exponent → small number (move decimal left).</div>
+    <div class="example">4,500,000 = 4.5 × 10⁶      0.00032 = 3.2 × 10⁻⁴</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Multiplying/Dividing in Scientific Notation</h3>
+    <span class="formula">(a×10<sup>m</sup>)(b×10<sup>n</sup>) = (ab) × 10<sup>m+n</sup></span>
+    <div class="row">Multiply (or divide) the front numbers, and add (or subtract) the exponents — then re-adjust if the front number isn't between 1 and 10 anymore.</div>
+    <div class="example">(2×10³)(3×10⁴) = 6×10⁷</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Write 62,000 in scientific notation.</div>
+  <details><summary>Show Answer</summary><div class="ans">6.2 × 10⁴</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Write 0.0007 in scientific notation.</div>
+  <details><summary>Show Answer</summary><div class="ans">7 × 10⁻⁴</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Simplify (5×10⁶)(4×10⁻²) and rewrite properly.</div>
+  <details><summary>Show Answer</summary><div class="ans">20×10⁴ = 2×10⁵ (re-adjust since 20 isn't between 1 and 10)</div></details></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">Scientists write the distance from Earth to the sun (about 93,000,000 miles) as 9.3 × 10⁷ miles, and the mass of a single atom (unimaginably small) with a negative exponent — scientific notation is what makes both numbers usable in a calculation.</div></div>
+</template>
+
+<template id="tpl-expressions">
+  <h2 class="title">Expressions: Simplifying &amp; Combining</h2>
+  <p class="sub">Cleaning up an expression before you ever try to solve anything.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Combining Like Terms</h3>
+    <div class="row"><b>What it means</b> Terms with the exact same variable(s) raised to the exact same power(s) can be added or subtracted together.</div>
+    <div class="remember"><b>Remember it:</b> Think of like terms as the same "type" of object — you can add 3 apples + 2 apples, but not 3 apples + 2 oranges.</div>
+    <div class="example">3x + 5x − 2 = 8x − 2      4x² + 3x − x² = 3x² + 3x</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Distributive Property</h3>
+    <span class="formula">a(b + c) = ab + ac</span>
+    <div class="row">Multiply the outside term by every term inside the parentheses before combining anything.</div>
+    <div class="remember"><b>Remember it:</b> A negative sign out front distributes into every term, flipping every sign inside.</div>
+    <div class="example">3(2x − 5) = 6x − 15      −(x − 4) = −x + 4</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Simplify: 4x + 3 + 2x − 1</div>
+  <details><summary>Show Answer</summary><div class="ans">6x + 2</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Simplify: 3(x + 4) − 2x</div>
+  <details><summary>Show Answer</summary><div class="ans">3x + 12 − 2x = x + 12</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Simplify: 2(3x − 1) − 4(x + 5)</div>
+  <details><summary>Show Answer</summary><div class="ans">6x − 2 − 4x − 20 = 2x − 22</div></details></div>
+
+  <div class="callout"><b>What if we change something?</b> Swap the sign out front (2(...) vs. −2(...)), swap a term from inside to outside the parentheses, or introduce a fraction as the multiplier — each changes what gets distributed, but "multiply everything inside, then combine like terms" always applies.</div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> distributing to only the first term inside the parentheses.<br><span class="wrong">Wrong: 3(x + 4) = 3x + 4</span><br><span class="right">Right: 3(x + 4) = 3x + 12</span></div></div>
+</template>
+
+<template id="tpl-equations">
+  <h2 class="title">Multi-Step Equations &amp; Literal Equations</h2>
+  <p class="sub">Solving for a variable when it takes more than one move — including when the variable shows up on both sides, or you're solving for a letter instead of a number.</p>
+
+  <div class="card">
+    <h3><span class="pin">STEPS</span> Solving a Multi-Step Equation</h3>
+    <ol class="steps-list">
+      <li>Distribute to clear any parentheses.</li>
+      <li>Combine like terms on each side separately.</li>
+      <li>Move variable terms to one side (undo by adding/subtracting).</li>
+      <li>Move constants to the other side.</li>
+      <li>Divide both sides by the coefficient on the variable.</li>
+    </ol>
+    <div class="remember"><b>Remember it:</b> "Whatever you do to one side, do to the other" — every move must keep the equation balanced.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Variables on Both Sides</h3>
+    <div class="row">Move every variable term to one side first (usually the side that keeps the coefficient positive), then solve normally.</div>
+    <div class="example">5x + 3 = 2x + 18 → 3x + 3 = 18 → 3x = 15 → x = 5</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Literal Equations</h3>
+    <div class="row">A literal equation has more than one variable — solve for the one requested exactly like any other equation, treating the other letters as if they were numbers.</div>
+    <div class="example">Solve for h: A = ½bh → 2A = bh → h = 2A/b</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Solve: 4x − 3 = 13</div>
+  <details><summary>Show Answer</summary><div class="ans">4x = 16 → x = 4</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Solve: 3(x − 2) = 2x + 1</div>
+  <details><summary>Show Answer</summary><div class="ans">3x − 6 = 2x + 1 → x = 7</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Solve for r: C = 2πr</div>
+  <details><summary>Show Answer</summary><div class="ans">r = C / (2π)</div></details></div>
+
+  <div class="callout"><b>What if we change something?</b> 2x − 5 = 17 (subtraction), −2x + 5 = 17 (negative coefficient), 2(x+5)=17 (parentheses), (2/3)x + 5 = 17 (fraction), or 2x + 5 &lt; 17 (inequality) — each variation changes one move in the process, but never the balanced-both-sides logic.</div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> forgetting a "no solution" or "infinite solutions" case.<br><span class="wrong">Wrong: assuming 2x + 3 = 2x + 7 must have some value of x</span><br><span class="right">Right: subtract 2x from both sides → 3 = 7, a false statement, so there is no solution</span></div></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">Renting a car for a flat fee plus a per-mile rate ($40 + $0.25m = total cost) is a multi-step equation — solving for m tells you exactly how many miles you can drive within a budget.</div></div>
+</template>
+
+<template id="tpl-slope">
+  <h2 class="title">Slope Formulas</h2>
+  <p class="sub">Slope measures how steep a line is and which way it's tilted. Almost every linear topic on the Regents comes back to slope.</p>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> The Slope Formula</h3>
+    <span class="formula">m = (y&#8322; − y&#8321;) / (x&#8322; − x&#8321;)</span>
+    <div class="row"><b>What it means</b> Slope is "rise over run" — how much y changes for every one unit that x changes. A slope of 2 means y climbs 2 for every 1 step right.</div>
+    <div class="row"><b>When to use it</b> You're given any two points on a line (or two data points in a table/graph) and need the steepness or rate of change between them.</div>
+    <div class="remember"><b>Remember it:</b> "Rise over Run." Write the y's on top, the x's on bottom, and keep point 1 and point 2 in the same order top and bottom.</div>
+    <div class="example">Example: (2,3) and (6,11) → m = (11−3)/(6−2) = 8/4 = 2</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Slope-Intercept Form</h3>
+    <span class="formula">y = mx + b</span>
+    <div class="row"><b>What it means</b> m is the slope; b is the y-intercept, the point where the line crosses the y-axis (where x = 0).</div>
+    <div class="row"><b>When to use it</b> Graphing a line fast, or writing an equation when you already know the slope and where it starts on the y-axis.</div>
+    <div class="remember"><b>Remember it:</b> "b is where you Begin" (on the y-axis); m is how much you Move each step right.</div>
+    <div class="example">Example: slope 3, y-intercept −2 → y = 3x − 2</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Point-Slope Form</h3>
+    <span class="formula">y − y&#8321; = m(x − x&#8321;)</span>
+    <div class="row"><b>What it means</b> Builds a line's equation directly from one known point and the slope — no y-intercept needed.</div>
+    <div class="row"><b>When to use it</b> You have a slope and a single point (not necessarily the y-intercept).</div>
+    <div class="remember"><b>Remember it:</b> "Minus what you know." Whatever point you're given gets subtracted straight into the formula.</div>
+    <div class="example">Example: slope 3 through (2,1) → y − 1 = 3(x − 2)</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Standard Form</h3>
+    <span class="formula">Ax + By = C</span>
+    <div class="row"><b>What it means</b> A general way to write a line, useful for solving systems by elimination and for reading intercepts quickly.</div>
+    <div class="row"><b>When to use it</b> Solving systems of equations, or finding both intercepts fast (set x = 0 for the y-intercept, set y = 0 for the x-intercept).</div>
+    <div class="remember"><b>Remember it:</b> A, B, C — alphabetical order — and A is usually kept positive with no fractions.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Parallel &amp; Perpendicular Slopes</h3>
+    <span class="formula">Parallel: m&#8321; = m&#8322;    Perpendicular: m&#8321; · m&#8322; = −1</span>
+    <div class="row"><b>What it means</b> Parallel lines tilt exactly the same amount and never cross. Perpendicular lines meet at a right angle, and their slopes are negative reciprocals of each other.</div>
+    <div class="row"><b>When to use it</b> Any question that describes two lines' relationship, or asks you to write an equation parallel/perpendicular to a given line.</div>
+    <div class="remember"><b>Remember it:</b> "Parallel = pals, same slope forever." For perpendicular: flip the fraction, then flip the sign.</div>
+    <div class="example">Example: a line has slope 2/3 → a perpendicular line has slope −3/2</div>
+  </div>
+</template>
+
+<template id="tpl-distance">
+  <h2 class="title">Distance Formula</h2>
+  <p class="sub">Finds the straight-line length between any two points on the coordinate plane.</p>
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Distance Between Two Points</h3>
+    <span class="formula">d = √[(x&#8322; − x&#8321;)&sup2; + (y&#8322; − y&#8321;)&sup2;]</span>
+    <div class="row"><b>What it means</b> It's the Pythagorean theorem in disguise. The horizontal gap (x&#8322;−x&#8321;) and vertical gap (y&#8322;−y&#8321;) are the two legs of a right triangle, and the distance between the points is the hypotenuse.</div>
+    <div class="row"><b>When to use it</b> Finding the length of a segment on a graph, the perimeter of a shape given its coordinates, or checking whether a figure has equal sides (e.g., proving a triangle is isosceles).</div>
+    <div class="remember"><b>Remember it:</b> Picture a right triangle stretched between the two points — it's just a² + b² = c² with a and b as the coordinate differences.</div>
+    <div class="example">Example: (1,2) and (4,6) → d = √[(4−1)² + (6−2)²] = √(9+16) = √25 = 5</div>
+  </div>
+  <div class="callout">On the Regents, distance-formula questions are often disguised as "find the perimeter" or "is this a right triangle" problems — the formula is the same either way.</div>
+</template>
+
+<template id="tpl-midpoint">
+  <h2 class="title">Midpoint Formula</h2>
+  <p class="sub">Finds the exact center point between two coordinates.</p>
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Midpoint of a Segment</h3>
+    <span class="formula">M = ( (x&#8321;+x&#8322;)/2 , (y&#8321;+y&#8322;)/2 )</span>
+    <div class="row"><b>What it means</b> The midpoint is just the average of the two x-coordinates and the average of the two y-coordinates.</div>
+    <div class="row"><b>When to use it</b> Finding the center of a segment, or the center of a circle when you're given the endpoints of a diameter.</div>
+    <div class="remember"><b>Remember it:</b> "Average the x's, average the y's." No subtraction anywhere — that's how you know it's not the distance formula.</div>
+    <div class="example">Example: (2,3) and (8,7) → M = ((2+8)/2, (3+7)/2) = (5, 5)</div>
+  </div>
+</template>
+
+<template id="tpl-inequalities">
+  <h2 class="title">Inequalities</h2>
+  <p class="sub">Like equations, but the solution is usually a whole range of values instead of one number.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Solving Inequalities</h3>
+    <div class="row">Solve exactly like an equation — <b>except</b> multiplying or dividing both sides by a negative number flips the direction of the inequality sign.</div>
+    <div class="remember"><b>Remember it:</b> "Negative flips it." Nothing else about the process changes.</div>
+    <div class="example">−2x + 5 &lt; 11 → −2x &lt; 6 → x &gt; −3 (flipped because we divided by −2)</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Compound &amp; Absolute Value Inequalities</h3>
+    <div class="row"><b>"And" compound:</b> both conditions must be true (an overlap). <b>"Or" compound:</b> at least one condition is true (two separate regions).</div>
+    <div class="row"><b>Absolute value:</b> |x| &lt; a becomes −a &lt; x &lt; a (an "and"); |x| &gt; a becomes x &lt; −a or x &gt; a (an "or").</div>
+    <div class="remember"><b>Remember it:</b> "Less than = between (and)." "Greater than = split apart (or)."</div>
+    <div class="example">|x − 2| &lt; 5 → −5 &lt; x−2 &lt; 5 → −3 &lt; x &lt; 7</div>
+  </div>
+
+  <div class="graph-row">
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 90" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="45" x2="185" y2="45" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="100" y1="35" x2="100" y2="55" stroke="#6a6a6c" stroke-width="1.5"/>
+        <text x="100" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">−3</text>
+        <circle cx="100" cy="45" r="5" fill="none" stroke="#f0f0f0" stroke-width="2"/>
+        <path d="M100,45 L175,45" stroke="#f0f0f0" stroke-width="3"/>
+        <path d="M170,40 L178,45 L170,50" fill="none" stroke="#f0f0f0" stroke-width="2"/>
+      </svg>
+      <div class="graph-caption">x &gt; −3 : open circle (not included), arrow right</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 90" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="45" x2="185" y2="45" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="100" y1="35" x2="100" y2="55" stroke="#6a6a6c" stroke-width="1.5"/>
+        <text x="100" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">2</text>
+        <circle cx="100" cy="45" r="5" fill="#f0f0f0"/>
+        <path d="M100,45 L25,45" stroke="#f0f0f0" stroke-width="3"/>
+        <path d="M30,40 L22,45 L30,50" fill="none" stroke="#f0f0f0" stroke-width="2"/>
+      </svg>
+      <div class="graph-caption">x ≤ 2 : filled circle (included), arrow left</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 90" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="45" x2="185" y2="45" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="70" y1="35" x2="70" y2="55" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="130" y1="35" x2="130" y2="55" stroke="#6a6a6c" stroke-width="1.5"/>
+        <text x="70" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">−1</text>
+        <text x="130" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">4</text>
+        <circle cx="70" cy="45" r="5" fill="#f0f0f0"/><circle cx="130" cy="45" r="5" fill="#f0f0f0"/>
+        <path d="M70,45 L130,45" stroke="#f0f0f0" stroke-width="3"/>
+      </svg>
+      <div class="graph-caption">−1 ≤ x ≤ 4 : compound "and", segment between both points</div>
+    </div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Solve: x + 5 ≥ 9</div>
+  <details><summary>Show Answer</summary><div class="ans">x ≥ 4</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Solve: 3x − 4 &lt; 11</div>
+  <details><summary>Show Answer</summary><div class="ans">3x &lt; 15 → x &lt; 5</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Solve: |2x + 1| ≥ 7</div>
+  <details><summary>Show Answer</summary><div class="ans">2x+1 ≥ 7 or 2x+1 ≤ −7 → x ≥ 3 or x ≤ −4</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> forgetting to flip the sign when multiplying/dividing by a negative.<br><span class="wrong">Wrong: −3x &lt; 12 → x &lt; −4</span><br><span class="right">Right: −3x &lt; 12 → x &gt; −4 (sign flips)</span></div></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">A ride only operates if a rider is at least 48 inches tall: h ≥ 48. A budget problem where you can spend at most $50 becomes c ≤ 50 — inequalities model limits and requirements, not just exact amounts.</div></div>
+</template>
+
+<template id="tpl-systems">
+  <h2 class="title">Systems of Equations</h2>
+  <p class="sub">Solving two (or more) equations at the same time, for the point where they agree.</p>
+
+  <div class="card">
+    <h3><span class="pin">METHOD</span> Graphing</h3>
+    <div class="row">Graph both lines — the solution is the point where they cross. Best for visualizing, but not precise for messy coordinates.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">METHOD</span> Substitution</h3>
+    <div class="row">Solve one equation for a variable, then substitute that expression into the other equation.</div>
+    <div class="example">y = 2x + 1 and y = −x + 7 → 2x+1 = −x+7 → 3x = 6 → x = 2, y = 5 → (2, 5)</div>
+    <div class="remember"><b>Remember it:</b> Best when a variable is already alone (or easy to isolate) in one equation.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">METHOD</span> Elimination</h3>
+    <div class="row">Add or subtract the equations (after matching one variable's coefficients) so that variable cancels out.</div>
+    <div class="example">3x + y = 10 and x − y = 2 → add straight down → 4x = 12 → x = 3 → y = 1 → (3, 1)</div>
+    <div class="remember"><b>Remember it:</b> Best when the equations are already stacked in standard form Ax + By = C.</div>
+  </div>
+
+  <div class="graph-wrap">
+    <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="110" x2="280" y2="110" stroke="#6a6a6c" stroke-width="1.5"/>
+      <line x1="150" y1="10" x2="150" y2="210" stroke="#6a6a6c" stroke-width="1.5"/>
+      <line x1="30" y1="190" x2="270" y2="30" stroke="#f0f0f0" stroke-width="2.5"/>
+      <line x1="30" y1="50" x2="270" y2="170" stroke="#9a9a9c" stroke-width="2.5"/>
+      <circle cx="185" cy="75" r="5" fill="#f0f0f0"/>
+      <text x="195" y="70" font-family="JetBrains Mono, monospace" font-size="12" fill="#f0f0f0">solution</text>
+    </svg>
+    <div class="graph-caption">Two lines meet at exactly one point — that point (x, y) is the system's solution.</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Solve by substitution: y = x + 2, y = 3x − 4</div>
+  <details><summary>Show Answer</summary><div class="ans">x+2 = 3x−4 → 6 = 2x → x = 3, y = 5 → (3,5)</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Solve by elimination: 2x + y = 11, x − y = 1</div>
+  <details><summary>Show Answer</summary><div class="ans">Add: 3x = 12 → x = 4 → y = 3 → (4,3)</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Solve: 4x + 3y = 25, 3x − 2y = 6</div>
+  <details><summary>Show Answer</summary><div class="ans">Multiply eq1 by 2 and eq2 by 3: 8x+6y=50 and 9x−6y=18 → add → 17x=68 → x=4 → 3(4)−2y=6 → y=3 → (4, 3)</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> forgetting to multiply <i>every</i> term (including the constant) when scaling an equation for elimination.<br><span class="wrong">Wrong: doubling 2x + y = 5 to get 4x + 2y = 5</span><br><span class="right">Right: 4x + 2y = 10 — the constant gets doubled too</span></div></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">Two phone plans — one with a higher monthly fee but lower per-text cost — form a system; the solution tells you the break-even number of texts where both plans cost the same.</div></div>
+</template>
+
+<template id="tpl-polynomials">
+  <h2 class="title">Polynomial Operations</h2>
+  <p class="sub">Adding, subtracting, and multiplying expressions with more than one term.</p>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Adding &amp; Subtracting Polynomials</h3>
+    <div class="row">Combine like terms only — line up matching degrees and add or subtract their coefficients.</div>
+    <div class="example">(3x² + 2x − 1) + (x² − 5x + 4) = 4x² − 3x + 3</div>
+    <div class="remember"><b>Remember it:</b> Subtracting a polynomial means distributing a negative sign to every term in it first.</div>
+    <div class="example">(3x² − 4) − (x² − 2x + 5) = 3x² − 4 − x² + 2x − 5 = 2x² + 2x − 9</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Multiplying Polynomials</h3>
+    <div class="row">Distribute every term in the first polynomial by every term in the second, then combine like terms. FOIL is just this rule for two binomials.</div>
+    <div class="example">(x + 2)(x² − 3x + 1) = x³ −3x² + x + 2x² − 6x + 2 = x³ − x² − 5x + 2</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">PATTERN</span> Special Products</h3>
+    <span class="formula">(a+b)² = a² + 2ab + b²      (a−b)² = a² − 2ab + b²      (a+b)(a−b) = a² − b²</span>
+    <div class="remember"><b>Remember it:</b> These three patterns come up so often they're worth recognizing instantly instead of re-FOILing every time.</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Add: (2x + 3) + (5x − 1)</div>
+  <details><summary>Show Answer</summary><div class="ans">7x + 2</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Multiply: (x − 4)(x + 6)</div>
+  <details><summary>Show Answer</summary><div class="ans">x² + 6x − 4x − 24 = x² + 2x − 24</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Expand: (2x − 3)²</div>
+  <details><summary>Show Answer</summary><div class="ans">(2x)² − 2(2x)(3) + 3² = 4x² − 12x + 9</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> forgetting to distribute the negative when subtracting an entire polynomial.<br><span class="wrong">Wrong: (5x − 2) − (2x + 3) = 5x − 2 − 2x + 3 = 3x + 1</span><br><span class="right">Right: (5x − 2) − (2x + 3) = 5x − 2 − 2x − 3 = 3x − 5 (the negative flips <i>both</i> terms in the second polynomial)</span></div></div>
+</template>
+
+<template id="tpl-quadratic">
+  <h2 class="title">Quadratic Formula</h2>
+  <p class="sub">Solves any quadratic equation for x — even the ones that won't factor nicely.</p>
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> For ax² + bx + c = 0</h3>
+    <span class="formula">x = ( −b ± √(b&sup2; − 4ac) ) / (2a)</span>
+    <div class="row"><b>What it means</b> It gives both solutions (roots) of a quadratic equation at once — the ± means "add for one answer, subtract for the other."</div>
+    <div class="row"><b>When to use it</b> Whenever a quadratic won't factor easily, or a problem specifically asks for exact/irrational solutions.</div>
+    <div class="remember"><b>Remember it:</b> Sing it to "Pop Goes the Weasel" — <i>"x equals negative b, plus or minus the square root, of b squared minus four-a-c, all over two-a."</i></div>
+    <div class="example">Example: x² + 5x + 6 = 0 → x = (−5 ± √(25−24))/2 = (−5 ± 1)/2 → x = −2 or x = −3</div>
+  </div>
+  <div class="card">
+    <h3><span class="pin">RULE</span> The Discriminant</h3>
+    <span class="formula">b&sup2; − 4ac</span>
+    <div class="row"><b>What it means</b> The part under the square root tells you what kind of solutions to expect, before you even finish solving.</div>
+    <table class="regtable">
+      <tr><th>Discriminant</th><th>What it tells you</th></tr>
+      <tr><td>Positive</td><td>2 real solutions</td></tr>
+      <tr><td>Zero</td><td>1 real solution (a double root — the vertex touches the x-axis)</td></tr>
+      <tr><td>Negative</td><td>No real solutions (2 imaginary solutions)</td></tr>
+    </table>
+    <div class="remember"><b>Remember it:</b> Positive → parabola crosses the x-axis twice. Zero → it just touches. Negative → it never touches.</div>
+  </div>
+</template>
+
+<template id="tpl-parabola">
+  <h2 class="title">Graphing Parabolas</h2>
+  <p class="sub">Every quadratic graphs as a symmetric U-shaped curve — reading off its key features first makes graphing fast.</p>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Vertex Form</h3>
+    <span class="formula">y = a(x − h)² + k    → vertex = (h, k)</span>
+    <div class="row">The vertex is the parabola's highest or lowest point. a &gt; 0 opens upward (minimum); a &lt; 0 opens downward (maximum). Larger |a| makes the parabola narrower.</div>
+    <div class="remember"><b>Remember it:</b> h is subtracted in the formula but shifts the graph in that same direction — h = 3 shifts right 3, even though it looks like "minus 3."</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">FORMULA</span> Axis of Symmetry</h3>
+    <span class="formula">x = −b / (2a)   (from standard form y = ax² + bx + c)</span>
+    <div class="row">A vertical line through the vertex that splits the parabola into two mirror-image halves — plug this x back into the equation to find the vertex's y-coordinate.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">METHOD</span> Completing the Square</h3>
+    <div class="row">Converts standard form into vertex form by turning x² + bx into a perfect square trinomial.</div>
+    <div class="example">y = x² + 6x + 5 → y = (x² + 6x + 9) + 5 − 9 → y = (x + 3)² − 4 → vertex (−3, −4)</div>
+  </div>
+
+  <div class="graph-row">
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="130" x2="190" y2="130" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="100" y1="10" x2="100" y2="150" stroke="#6a6a6c" stroke-width="1.5"/>
+        <path d="M20,140 Q100,10 180,140" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+        <circle cx="100" cy="20" r="4" fill="#f0f0f0"/>
+      </svg>
+      <div class="graph-caption">a &gt; 0 — opens up, vertex is a minimum</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="30" x2="190" y2="30" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="100" y1="10" x2="100" y2="150" stroke="#6a6a6c" stroke-width="1.5"/>
+        <path d="M20,20 Q100,150 180,20" fill="none" stroke="#9a9a9c" stroke-width="2.5"/>
+        <circle cx="100" cy="140" r="4" fill="#9a9a9c"/>
+      </svg>
+      <div class="graph-caption">a &lt; 0 — opens down, vertex is a maximum</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="130" x2="190" y2="130" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="100" y1="10" x2="100" y2="150" stroke="#6a6a6c" stroke-width="1.5"/>
+        <path d="M35,140 Q100,10 165,140" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+        <path d="M15,145 Q100,-25 185,145" fill="none" stroke="#6a6a6c" stroke-width="2" stroke-dasharray="4,4"/>
+        <circle cx="100" cy="20" r="4" fill="#f0f0f0"/>
+      </svg>
+      <div class="graph-caption">larger |a| (dashed) → narrower parabola</div>
+    </div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Find the vertex of y = (x − 2)² + 5</div>
+  <details><summary>Show Answer</summary><div class="ans">(2, 5)</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Find the axis of symmetry of y = x² − 8x + 3</div>
+  <details><summary>Show Answer</summary><div class="ans">x = −(−8)/(2·1) = 4</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Write y = x² + 4x + 1 in vertex form.</div>
+  <details><summary>Show Answer</summary><div class="ans">y = (x²+4x+4) + 1 − 4 = (x+2)² − 3 → vertex (−2, −3)</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> reading the vertex's x-coordinate with the wrong sign.<br><span class="wrong">Wrong: y = (x − 3)² + 2 → vertex (−3, 2)</span><br><span class="right">Right: vertex (3, 2) — the h-value flips sign from what's written in the parentheses</span></div></div>
+
+  <div class="card"><h3>Real-World Application</h3><div class="row">A ball thrown in the air follows a parabolic path — the vertex represents the ball's maximum height, and the axis of symmetry marks the moment it's at that peak.</div></div>
+</template>
+
+<template id="tpl-exponents">
+  <h2 class="title">Exponent Rules</h2>
+  <p class="sub">Rules for combining powers — every one of these only works when the bases match (except the power rules).</p>
+
+  <div class="card"><h3><span class="pin">RULE</span> Product Rule</h3><span class="formula">a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></span>
+  <div class="row"><b>What it means</b> Multiplying same-base powers keeps the base and adds the exponents.</div>
+  <div class="row"><b>When to use it</b> Multiplying two terms that share a base, like variables in a monomial.</div>
+  <div class="remember"><b>Remember it:</b> "Multiply → Add."</div>
+  <div class="example">x³ · x⁴ = x⁷</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Quotient Rule</h3><span class="formula">a<sup>m</sup> / a<sup>n</sup> = a<sup>m−n</sup></span>
+  <div class="row"><b>What it means</b> Dividing same-base powers keeps the base and subtracts the exponents.</div>
+  <div class="remember"><b>Remember it:</b> "Divide → Subtract."</div>
+  <div class="example">x⁷ / x³ = x⁴</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Power Rule</h3><span class="formula">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></span>
+  <div class="row"><b>What it means</b> Raising a power to another power multiplies the exponents.</div>
+  <div class="remember"><b>Remember it:</b> "Power of a power → Multiply."</div>
+  <div class="example">(x³)⁴ = x¹²</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Zero &amp; Negative Exponents</h3><span class="formula">a&#8304; = 1     a<sup>−n</sup> = 1/a<sup>n</sup></span>
+  <div class="row"><b>What it means</b> Anything (except 0) to the zero power is 1. A negative exponent means "flip me to the other side of the fraction" — it does not make the value negative.</div>
+  <div class="remember"><b>Remember it:</b> "Negative exponents flip, they don't flip the sign."</div>
+  <div class="example">2⁻³ = 1/2³ = 1/8</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Power of a Product / Quotient</h3><span class="formula">(ab)<sup>n</sup> = a<sup>n</sup>b<sup>n</sup>     (a/b)<sup>n</sup> = a<sup>n</sup>/b<sup>n</sup></span>
+  <div class="row"><b>What it means</b> The outside exponent distributes to every factor inside the parentheses.</div>
+  <div class="example">(2x)³ = 8x³</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Fractional Exponents</h3><span class="formula">a<sup>m/n</sup> = (ⁿ√a)<sup>m</sup></span>
+  <div class="row"><b>What it means</b> The denominator of the exponent is the root, the numerator is the power.</div>
+  <div class="remember"><b>Remember it:</b> "Bottom is the root (like a root cellar), top is the power."</div>
+  <div class="example">8^(2/3) = (³√8)² = 2² = 4</div></div>
+</template>
+
+<template id="tpl-factoring">
+  <h2 class="title">Factoring Patterns</h2>
+  <p class="sub">Factoring reverses multiplication — every pattern below turns an expanded expression back into a product.</p>
+
+  <div class="card"><h3><span class="pin">STEP 1</span> Greatest Common Factor (GCF)</h3>
+  <span class="formula">ab + ac = a(b + c)</span>
+  <div class="row"><b>What it means</b> Pull out the largest factor common to every term before trying anything else.</div>
+  <div class="row"><b>When to use it</b> Always check first — every factoring problem starts here.</div>
+  <div class="remember"><b>Remember it:</b> "GCF first, always."</div>
+  <div class="example">6x² + 9x = 3x(2x + 3)</div></div>
+
+  <div class="card"><h3><span class="pin">PATTERN</span> Difference of Squares</h3>
+  <span class="formula">a&sup2; − b&sup2; = (a − b)(a + b)</span>
+  <div class="row"><b>What it means</b> Two perfect squares being subtracted always split into a sum and a difference of their roots.</div>
+  <div class="row"><b>When to use it</b> A binomial (2 terms) with a minus sign, both terms perfect squares.</div>
+  <div class="remember"><b>Remember it:</b> "No middle term? Twins with opposite signs."</div>
+  <div class="example">x² − 25 = (x − 5)(x + 5)</div></div>
+
+  <div class="card"><h3><span class="pin">PATTERN</span> Perfect Square Trinomial</h3>
+  <span class="formula">a&sup2; + 2ab + b&sup2; = (a + b)&sup2;      a&sup2; − 2ab + b&sup2; = (a − b)&sup2;</span>
+  <div class="row"><b>What it means</b> Comes from squaring a binomial — the first and last terms are perfect squares, and the middle term is double their product.</div>
+  <div class="example">x² + 6x + 9 = (x + 3)²</div></div>
+
+  <div class="card"><h3><span class="pin">METHOD</span> Trinomial Factoring</h3>
+  <span class="formula">x&sup2; + bx + c = (x + p)(x + q), where pq = c and p + q = b</span>
+  <div class="row"><b>What it means</b> Find two numbers that multiply to the constant and add to the middle coefficient.</div>
+  <div class="row"><b>When to use it</b> Any trinomial with a leading coefficient of 1.</div>
+  <div class="remember"><b>Remember it:</b> "Multiply to the last, add to the middle."</div>
+  <div class="example">x² + 7x + 12 → 3 & 4 multiply to 12, add to 7 → (x+3)(x+4)</div></div>
+
+  <div class="card"><h3><span class="pin">METHOD</span> AC Method &amp; Grouping</h3>
+  <span class="formula">ax&sup2; + bx + c → split bx using two numbers that multiply to ac and add to b, then group</span>
+  <div class="row"><b>When to use it</b> Trinomials where the leading coefficient is not 1.</div>
+  <div class="example">2x² + 7x + 3 → numbers 6 & 1 (multiply to 6, add to 7) → 2x²+6x+x+3 → 2x(x+3)+1(x+3) → (2x+1)(x+3)</div></div>
+</template>
+
+<template id="tpl-foil">
+  <h2 class="title">FOIL</h2>
+  <p class="sub">The order for multiplying two binomials together, term by term.</p>
+  <div class="card">
+    <h3><span class="pin">METHOD</span> First · Outer · Inner · Last</h3>
+    <span class="formula">(a + b)(c + d) = ac + ad + bc + bd</span>
+    <div class="row"><b>What it means</b> FOIL is just an order of operations for distributing twice — multiply the First terms, then the Outer terms, then the Inner terms, then the Last terms, and add everything together.</div>
+    <div class="row"><b>When to use it</b> Multiplying any two binomials (two two-term expressions).</div>
+    <div class="remember"><b>Remember it:</b> F-O-I-L — First, Outer, Inner, Last. Draw the "smile and eyebrows" arcs connecting the terms if it helps.</div>
+    <div class="example">(x + 3)(x + 5) = x² + 5x + 3x + 15 = x² + 8x + 15</div>
+  </div>
+  <div class="callout warn"><b>Watch out:</b> FOIL only works for binomial × binomial. For anything bigger (like a trinomial times a binomial), distribute every term instead.</div>
+</template>
+
+<template id="tpl-radicals">
+  <h2 class="title">Radical Rules</h2>
+  <p class="sub">Rules for simplifying and combining square roots.</p>
+
+  <div class="card"><h3><span class="pin">RULE</span> Product &amp; Quotient Rules</h3>
+  <span class="formula">√(ab) = √a · √b       √(a/b) = √a / √b</span>
+  <div class="row"><b>What it means</b> A root of a product (or quotient) can be split into the root of each piece — which is how you pull perfect squares out.</div>
+  <div class="remember"><b>Remember it:</b> Look for the biggest perfect-square factor hiding inside the number.</div>
+  <div class="example">√50 = √(25·2) = √25·√2 = 5√2</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Adding &amp; Subtracting Radicals</h3>
+  <span class="formula">a√n ± b√n = (a ± b)√n</span>
+  <div class="row"><b>What it means</b> Only "like radicals" (the same number under the root) can combine — treat √n like a variable.</div>
+  <div class="remember"><b>Remember it:</b> "Same root, same rules as like terms."</div>
+  <div class="example">3√2 + 5√2 = 8√2, but 3√2 + 5√3 cannot combine</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Rationalizing the Denominator</h3>
+  <span class="formula">a/√b → (a·√b)/b</span>
+  <div class="row"><b>What it means</b> A radical isn't allowed to stay in the denominator, so multiply the top and bottom by that radical to clear it out.</div>
+  <div class="remember"><b>Remember it:</b> "No radicals allowed in the basement (denominator)."</div>
+  <div class="example">5/√3 = (5√3)/3</div></div>
+</template>
+
+<template id="tpl-functions">
+  <h2 class="title">Function Formulas</h2>
+  <p class="sub">The core toolkit for reading, writing, and transforming functions.</p>
+
+  <div class="card"><h3><span class="pin">NOTATION</span> Function Notation</h3>
+  <span class="formula">f(x) = "the output of function f when the input is x"</span>
+  <div class="row"><b>When to use it</b> Anytime you need to evaluate a function at a specific input — just substitute that value in for x.</div>
+  <div class="remember"><b>Remember it:</b> f(3) does NOT mean f times 3 — it means "plug 3 in."</div>
+  <div class="example">f(x) = 2x² − x + 1 → f(3) = 2(9) − 3 + 1 = 16</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Vertical Line Test</h3>
+  <div class="row"><b>What it means</b> If any vertical line crosses a graph more than once, the graph is not a function — one input can't have two outputs.</div>
+  <div class="remember"><b>Remember it:</b> "One x, one y — or it's not a function."</div></div>
+
+  <div class="card"><h3><span class="pin">FORMULA</span> Average Rate of Change</h3>
+  <span class="formula">( f(b) − f(a) ) / (b − a)</span>
+  <div class="row"><b>What it means</b> The slope between two points on any curve — how fast the function's output is changing on average over that interval.</div>
+  <div class="row"><b>When to use it</b> Comparing how quickly two functions grow, or finding "average speed" style word problems.</div>
+  <div class="example">f(x)=x², from x=1 to x=4 → (16−1)/(4−1) = 5</div></div>
+
+  <div class="card"><h3><span class="pin">RULE</span> Transformations</h3>
+  <table class="regtable">
+    <tr><th>Change</th><th>Effect</th></tr>
+    <tr><td>f(x) + k</td><td>shifts graph up (k&gt;0) or down (k&lt;0)</td></tr>
+    <tr><td>f(x + k)</td><td>shifts graph left (k&gt;0) or right (k&lt;0) — opposite of what it looks like</td></tr>
+    <tr><td>a·f(x)</td><td>stretches (|a|&gt;1) or compresses (|a|&lt;1) vertically</td></tr>
+    <tr><td>−f(x)</td><td>reflects over the x-axis</td></tr>
+  </table>
+  <div class="remember"><b>Remember it:</b> "Outside the parentheses acts normal; inside the parentheses acts backwards."</div></div>
+
+  <div class="card"><h3><span class="pin">FORMULA</span> Sequences</h3>
+  <span class="formula">Arithmetic: a<sub>n</sub> = a&#8321; + (n−1)d      Geometric: a<sub>n</sub> = a&#8321; · r<sup>(n−1)</sup></span>
+  <div class="row"><b>What it means</b> Arithmetic sequences add the same amount (d) each step; geometric sequences multiply by the same ratio (r) each step.</div>
+  <div class="remember"><b>Remember it:</b> "Linear ADDS, exponential MULTIPLIES" — arithmetic behaves like a line, geometric behaves like exponential growth.</div></div>
+</template>
+
+<template id="tpl-domainrange">
+  <h2 class="title">Domain &amp; Range</h2>
+  <p class="sub">Domain is every valid input; range is every output that comes back out.</p>
+
+  <div class="card">
+    <h3><span class="pin">DEFINITION</span> Domain &amp; Range</h3>
+    <div class="row"><b>Domain</b> = the complete set of x-values a function is allowed to use. <b>Range</b> = the complete set of resulting y-values.</div>
+    <div class="remember"><b>Remember it:</b> "Domain = Down the x-axis, left to right." Range is what's left, the y's.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">RULE</span> Common Domain Restrictions</h3>
+    <ul class="vocab-list">
+      <li><b>Fractions</b> — the denominator can never equal 0.</li>
+      <li><b>Square roots</b> — the expression under the root can't be negative.</li>
+      <li><b>Real-world models</b> — negative time, negative people, or negative distance usually aren't allowed.</li>
+    </ul>
+  </div>
+
+  <div class="graph-wrap">
+    <svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <line x1="15" y1="130" x2="245" y2="130" stroke="#6a6a6c" stroke-width="1.5"/>
+      <line x1="130" y1="10" x2="130" y2="150" stroke="#6a6a6c" stroke-width="1.5"/>
+      <path d="M20,20 L100,130" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+      <path d="M160,130 L240,20" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+      <circle cx="130" cy="130" r="4" fill="#0a0a0a" stroke="#f0f0f0" stroke-width="2"/>
+      <text x="130" y="148" font-family="JetBrains Mono, monospace" font-size="11" fill="#9a9a9c" text-anchor="middle">x = 3 (undefined)</text>
+    </svg>
+    <div class="graph-caption">f(x) = 1/(x−3): the open point at x = 3 shows the value excluded from the domain.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">DEFINITION</span> Piecewise Functions</h3>
+    <div class="row">A piecewise function applies a different rule over different intervals of the domain — check which interval x falls into before choosing the rule to use.</div>
+    <div class="example">f(x) = x+1 if x&lt;0; f(x) = x² if x≥0 → f(−2)=−1, f(3)=9</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Find the domain of f(x) = 2x + 5.</div>
+  <details><summary>Show Answer</summary><div class="ans">All real numbers (no restrictions on a linear function)</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Find the domain of f(x) = √(x − 4).</div>
+  <details><summary>Show Answer</summary><div class="ans">x − 4 ≥ 0 → x ≥ 4</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> Find the domain of f(x) = 1/(x² − 9).</div>
+  <details><summary>Show Answer</summary><div class="ans">x² − 9 ≠ 0 → x ≠ 3 and x ≠ −3</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> swapping domain and range.<br><span class="wrong">Wrong: calling the y-values the domain</span><br><span class="right">Right: domain = x-values (inputs), range = y-values (outputs)</span></div></div>
+</template>
+
+<template id="tpl-stats">
+  <h2 class="title">Statistics Basics</h2>
+  <p class="sub">Describing a data set with a single representative number, and visualizing its spread.</p>
+
+  <div class="card">
+    <h3><span class="pin">DEFINITION</span> Mean, Median, Mode, Range</h3>
+    <ul class="vocab-list">
+      <li><b>Mean</b> — the average: sum of all values ÷ number of values.</li>
+      <li><b>Median</b> — the middle value when the data is ordered (average the two middle values if there's an even count).</li>
+      <li><b>Mode</b> — the value that appears most often (a data set can have none, one, or several modes).</li>
+      <li><b>Range</b> — the largest value minus the smallest value.</li>
+    </ul>
+    <div class="example">Data: 4, 7, 7, 9, 13 → mean = 8, median = 7, mode = 7, range = 9</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">VISUAL</span> Box Plots</h3>
+    <div class="row">A box plot displays the minimum, first quartile (Q1), median, third quartile (Q3), and maximum of a data set — the box spans the "middle 50%" of the data (the interquartile range).</div>
+  </div>
+
+  <div class="graph-wrap">
+    <svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="45" x2="260" y2="45" stroke="#6a6a6c" stroke-width="1.5"/>
+      <line x1="40" y1="30" x2="40" y2="60" stroke="#f0f0f0" stroke-width="2"/>
+      <line x1="220" y1="30" x2="220" y2="60" stroke="#f0f0f0" stroke-width="2"/>
+      <rect x="90" y="25" width="80" height="40" fill="none" stroke="#f0f0f0" stroke-width="2"/>
+      <line x1="130" y1="25" x2="130" y2="65" stroke="#f0f0f0" stroke-width="2"/>
+      <line x1="40" y1="45" x2="90" y2="45" stroke="#f0f0f0" stroke-width="2"/>
+      <line x1="170" y1="45" x2="220" y2="45" stroke="#f0f0f0" stroke-width="2"/>
+      <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9a9c" text-anchor="middle">
+        <text x="40" y="80">min</text><text x="90" y="80">Q1</text><text x="130" y="80">median</text>
+        <text x="170" y="80">Q3</text><text x="220" y="80">max</text>
+      </g>
+    </svg>
+    <div class="graph-caption">The box covers the middle 50% of the data; the whiskers reach to the min and max.</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Find the mean of 2, 4, 6, 8.</div>
+  <details><summary>Show Answer</summary><div class="ans">(2+4+6+8)/4 = 5</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> Find the median of 12, 5, 9, 20, 7.</div>
+  <details><summary>Show Answer</summary><div class="ans">Ordered: 5,7,9,12,20 → median = 9</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> A data set of 6 test scores has a mean of 85. Five of the scores are 90, 82, 88, 78, 84. Find the sixth.</div>
+  <details><summary>Show Answer</summary><div class="ans">Total needed = 85×6 = 510; sum of 5 known = 422; sixth = 510−422 = 88</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> forgetting to reorder the data before finding the median.<br><span class="wrong">Wrong: median of 8, 2, 5 → picking the middle position (2) without sorting</span><br><span class="right">Right: sort first → 2, 5, 8 → median = 5</span></div></div>
+</template>
+
+<template id="tpl-scatter">
+  <h2 class="title">Scatter Plots &amp; Correlation</h2>
+  <p class="sub">Visualizing the relationship between two numeric variables, and estimating it with a line.</p>
+
+  <div class="graph-row">
+    <div class="graph-wrap">
+      <svg viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="120" x2="165" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="15" y1="10" x2="15" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <g fill="#f0f0f0">
+          <circle cx="30" cy="105" r="3.5"/><circle cx="55" cy="90" r="3.5"/><circle cx="75" cy="80" r="3.5"/>
+          <circle cx="95" cy="60" r="3.5"/><circle cx="115" cy="45" r="3.5"/><circle cx="140" cy="25" r="3.5"/>
+        </g>
+        <line x1="25" y1="110" x2="150" y2="20" stroke="#9a9a9c" stroke-width="1.5" stroke-dasharray="4,3"/>
+      </svg>
+      <div class="graph-caption">Positive correlation — as x increases, y increases</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="120" x2="165" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="15" y1="10" x2="15" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <g fill="#f0f0f0">
+          <circle cx="30" cy="25" r="3.5"/><circle cx="55" cy="45" r="3.5"/><circle cx="75" cy="60" r="3.5"/>
+          <circle cx="95" cy="80" r="3.5"/><circle cx="115" cy="95" r="3.5"/><circle cx="140" cy="110" r="3.5"/>
+        </g>
+        <line x1="25" y1="20" x2="150" y2="115" stroke="#9a9a9c" stroke-width="1.5" stroke-dasharray="4,3"/>
+      </svg>
+      <div class="graph-caption">Negative correlation — as x increases, y decreases</div>
+    </div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg">
+        <line x1="15" y1="120" x2="165" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <line x1="15" y1="10" x2="15" y2="120" stroke="#6a6a6c" stroke-width="1.5"/>
+        <g fill="#f0f0f0">
+          <circle cx="30" cy="50" r="3.5"/><circle cx="55" cy="95" r="3.5"/><circle cx="75" cy="30" r="3.5"/>
+          <circle cx="95" cy="100" r="3.5"/><circle cx="115" cy="40" r="3.5"/><circle cx="140" cy="80" r="3.5"/>
+        </g>
+      </svg>
+      <div class="graph-caption">No correlation — points scattered with no clear trend</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">CONCEPT</span> Line of Best Fit &amp; Residuals</h3>
+    <div class="row">A line of best fit is the single line that most closely approximates the trend in scattered data, usually written in y = mx + b form so it can predict new values.</div>
+    <div class="row"><b>Residual</b> = actual y − predicted y. A good fit has small residuals scattered evenly above and below the line.</div>
+    <div class="remember"><b>Remember it:</b> Correlation ≠ causation — a strong trend doesn't prove one variable causes the other.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="pin">BASICS</span> Probability</h3>
+    <span class="formula">P(event) = favorable outcomes / total possible outcomes</span>
+    <div class="row">Probability is always between 0 (impossible) and 1 (certain). Independent events: multiply their probabilities together.</div>
+    <div class="example">Rolling a die and getting an even number: P = 3/6 = 1/2</div>
+  </div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">EASY</span> Describe the correlation: hours studied vs. test score, both increasing together.</div>
+  <details><summary>Show Answer</summary><div class="ans">Positive correlation</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">MEDIUM</span> A best-fit line is y = 2x + 10. Predict y when x = 5.</div>
+  <details><summary>Show Answer</summary><div class="ans">y = 2(5)+10 = 20</div></details></div>
+  <div class="qcard"><div class="qhead"><span class="qnum">HARD</span> A spinner has 4 equal sections: red, blue, green, yellow. Find P(not red) on two spins (independent).</div>
+  <details><summary>Show Answer</summary><div class="ans">P(not red) = 3/4 each spin → (3/4)(3/4) = 9/16</div></details></div>
+
+  <div class="mistake"><div class="no">!</div><div><b>Most common mistake:</b> assuming correlation proves causation.<br><span class="wrong">Wrong: "Ice cream sales and drowning rates rise together, so ice cream causes drownings."</span><br><span class="right">Right: both rise because of a hidden third factor — summer heat</span></div></div>
+</template>
+
+<template id="tpl-regents">
+  <h2 class="title">Algebra I Regents — Exam Review</h2>
+  <p class="sub">What to expect on test day, based on the official NYSED exam structure.</p>
+
+  <div class="card">
+    <h3>Exam Format</h3>
+    <table class="regtable">
+      <tr><th>Part</th><th>Question Type</th><th>Count</th><th>Points Each</th><th>Total</th></tr>
+      <tr><td>I</td><td>Multiple choice</td><td>24</td><td>2</td><td>48</td></tr>
+      <tr><td>II</td><td>Short constructed response</td><td>8</td><td>2</td><td>16</td></tr>
+      <tr><td>III</td><td>Constructed response</td><td>4</td><td>4</td><td>16</td></tr>
+      <tr><td>IV</td><td>Extended constructed response</td><td>1</td><td>6</td><td>6</td></tr>
+    </table>
+    <div class="row"><b>Time</b> 3 hours. <b>Calculator</b> A graphing calculator is required for the entire exam (no CAS models like the TI-89 or TI-Nspire CAS). <b>Reference sheet</b> A formula reference sheet — including the quadratic formula, sequence formulas, and exponential growth/decay — is printed in the exam booklet, so you don't need to memorize those from scratch, just know when to use them.</div>
+  </div>
+
+  <div class="card">
+    <h3>What's Tested</h3>
+    <div class="row">The exam blueprint weights topics roughly as: <b>Algebra</b> (equations, inequalities, factoring, systems) is the largest share, <b>Functions</b> (notation, graphs, transformations, sequences) is the second largest, and <b>Number &amp; Quantity</b> plus <b>Statistics &amp; Probability</b> make up smaller remaining portions.</div>
+  </div>
+
+  <div class="callout warn"><b>Scoring changes each administration.</b> Your raw score (out of the total points above) converts to a 0–100 scaled score using a conversion chart that NYSED releases separately for every exam date — it is not the same chart from year to year. Passing (Level 3) generally falls in the mid-60s and up, but check the official conversion chart for your specific test date rather than relying on a past one.</div>
+
+  <div class="card">
+    <h3>Test-Day Strategy</h3>
+    <div class="row"><b>Part I (multiple choice):</b> No penalty for guessing and no partial credit — answer every question, even a guess. Eliminate obviously wrong choices first.</div>
+    <div class="row"><b>Parts II–IV (constructed response):</b> Partial credit is real — show every step, label your final answer, and never leave a box blank. A wrong final answer with correct method still earns points.</div>
+    <div class="row"><b>Pacing:</b> With 3 hours for 37 questions, that's roughly 4–5 minutes per question on average — but Part I questions usually go faster, leaving extra time for the longer constructed-response problems.</div>
+  </div>
+</template>
+
+<template id="tpl-mistakes">
+  <h2 class="title">Common Mistakes</h2>
+  <p class="sub">The errors that cost the most points, semester after semester — with the fix right next to each one.</p>
+
+  <div class="mistake"><div class="no">01</div><div><b>Forgetting to flip the inequality sign.</b><br><span class="wrong">Wrong: −2x &lt; 6 → x &lt; −3</span><br><span class="right">Right: −2x &lt; 6 → x &gt; −3 (flip when multiplying/dividing by a negative)</span></div></div>
+
+  <div class="mistake"><div class="no">02</div><div><b>Distributing a negative sign incorrectly.</b><br><span class="wrong">Wrong: −(x − 3) = −x − 3</span><br><span class="right">Right: −(x − 3) = −x + 3 (the negative flips every term inside)</span></div></div>
+
+  <div class="mistake"><div class="no">03</div><div><b>Square-rooting both sides and losing a solution.</b><br><span class="wrong">Wrong: x² = 16 → x = 4</span><br><span class="right">Right: x² = 16 → x = ±4</span></div></div>
+
+  <div class="mistake"><div class="no">04</div><div><b>Mixing up slope and y-intercept.</b><br><span class="wrong">Wrong: reading y = 3x − 2 as slope −2, intercept 3</span><br><span class="right">Right: in y = mx + b, m (3) is slope, b (−2) is the y-intercept</span></div></div>
+
+  <div class="mistake"><div class="no">05</div><div><b>Skipping a FOIL term.</b><br><span class="wrong">Wrong: (x+3)(x+5) = x² + 15</span><br><span class="right">Right: (x+3)(x+5) = x² + 5x + 3x + 15 = x² + 8x + 15</span></div></div>
+
+  <div class="mistake"><div class="no">06</div><div><b>Factoring without checking for a GCF first.</b><br><span class="wrong">Wrong: 4x² + 8x → jumping straight to trinomial rules</span><br><span class="right">Right: pull out the GCF first → 4x(x + 2)</span></div></div>
+
+  <div class="mistake"><div class="no">07</div><div><b>Adding exponents with different bases.</b><br><span class="wrong">Wrong: x³ · y² = (xy)⁵</span><br><span class="right">Right: exponent rules only combine when the base is the same — x³·y² stays as is</span></div></div>
+
+  <div class="mistake"><div class="no">08</div><div><b>The "freshman's dream" error — squaring a binomial as two separate squares.</b><br><span class="wrong">Wrong: (x + y)² = x² + y²</span><br><span class="right">Right: (x + y)² = x² + 2xy + y² (don't forget the middle term)</span></div></div>
+
+  <div class="mistake"><div class="no">09</div><div><b>Sign errors in the quadratic formula.</b><br><span class="wrong">Wrong: forgetting −b becomes positive when b is negative</span><br><span class="right">Right: carefully substitute the sign of b before simplifying, and always apply ± to the whole square root</span></div></div>
+
+  <div class="mistake"><div class="no">10</div><div><b>Answering a different question than what was asked.</b><br><span class="wrong">Wrong: solving for x when the question asks for f(x), or leaving units off a word problem</span><br><span class="right">Right: re-read the question after solving and confirm you answered exactly what it asked</span></div></div>
+
+  <div class="mistake"><div class="no">11</div><div><b>Rounding too early.</b><br><span class="wrong">Wrong: rounding a decimal mid-problem, then carrying the rounded value through several more steps</span><br><span class="right">Right: keep exact values (or full decimals) until the final answer, then round once</span></div></div>
+
+  <div class="mistake"><div class="no">12</div><div><b>Confusing domain and range.</b><br><span class="wrong">Wrong: calling the set of y-values the domain</span><br><span class="right">Right: domain = all possible x-values (inputs); range = all possible y-values (outputs)</span></div></div>
+
+  <div class="mistake"><div class="no">13</div><div><b>Not checking for extraneous solutions.</b><br><span class="wrong">Wrong: accepting every solution that comes out of a radical or rational equation</span><br><span class="right">Right: plug every solution back into the original equation — some make the equation false or undefined and must be thrown out</span></div></div>
+
+  <div class="mistake"><div class="no">14</div><div><b>Leaving a constructed-response question blank.</b><br><span class="wrong">Wrong: skipping a problem because the final answer isn't obvious</span><br><span class="right">Right: show whatever steps you're sure of — Parts II–IV award partial credit for correct method, even with the wrong final answer</span></div></div>
+
+  <div class="mistake"><div class="no">15</div><div><b>Combining unlike terms or unlike radicals.</b><br><span class="wrong">Wrong: 3x + 2x² = 5x³, or 2√3 + 5√2 = 7√5</span><br><span class="right">Right: only combine matching variable/exponent terms or matching radicals — 3x and 2x² stay separate; 2√3 and 5√2 stay separate</span></div></div>
+
+  <hr class="tear">
+  <h3 style="color:var(--white); font-family:'Press Start 2P',monospace; font-size:13px;">Teacher Trick Questions</h3>
+  <p class="sub" style="margin-bottom:16px;">Patterns that show up again and again when a question is designed to catch a rushed answer.</p>
+  <div class="card">
+    <ul class="vocab-list">
+      <li><b>Hidden GCF</b> — a factoring problem where every term shares a common factor before any "nicer" pattern applies. Always check for one first.</li>
+      <li><b>Extra negative sign</b> — a problem written as −x² + 5x + 6 instead of x² − 5x − 6, testing whether you distribute the leading negative correctly.</li>
+      <li><b>Answer choices that match a partial step</b> — on multiple choice, one wrong choice is often what you'd get by stopping halfway through (e.g., forgetting the ± in a square root). Finish the full process before picking an answer.</li>
+      <li><b>Units or "in terms of"</b> — a word problem that asks for the answer in specific units, or asks you to express one variable "in terms of" another rather than solve for a number.</li>
+      <li><b>A graph with a deceptive scale</b> — axes that don't start at 0 or use uneven intervals, designed to make slope or growth look different than it is.</li>
+    </ul>
+  </div>
+
+  <div class="callout tip"><b>How to check your answer fast:</b> Substitute your solution back into the original equation (not a simplified version) and confirm both sides match. For factoring, re-multiply your factors with FOIL — if you don't land back on the original expression, re-factor.</div>
+
+  <div class="callout"><b>Things you must memorize:</b> the quadratic formula, exponent rules (product/quotient/power), the slope formula, y = mx + b, the difference-of-squares pattern, and PEMDAS. Everything else on the Regents reference sheet doesn't need to be memorized — just recognized.</div>
+</template>
+
+<template id="tpl-top100">
+  <h2 class="title">Top 100 Algebra Facts</h2>
+  <p class="sub">A rapid-fire reference covering the whole course — ten groups of ten, organized by topic.</p>
+
+  <div class="fact-group"><h3>Numbers &amp; Expressions</h3><ol class="fact-list">
+  <li>A variable is a letter that represents an unknown or changing number.</li>
+  <li>A coefficient is the number multiplied in front of a variable.</li>
+  <li>A term is a single number, variable, or product/quotient of numbers and variables.</li>
+  <li>Like terms have the exact same variable(s) raised to the exact same power(s).</li>
+  <li>Order of operations: Parentheses, Exponents, Multiplication/Division, Addition/Subtraction (PEMDAS), left to right within each level.</li>
+  <li>The distributive property: a(b + c) = ab + ac.</li>
+  <li>The additive identity is 0 (adding it changes nothing); the multiplicative identity is 1.</li>
+  <li>Opposites (additive inverses) sum to 0; reciprocals (multiplicative inverses) multiply to 1.</li>
+  <li>Absolute value measures distance from zero and is always non-negative.</li>
+  <li>A constant is a term with no variable — it never changes.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Solving Equations</h3><ol class="fact-list">
+  <li>Whatever you do to one side of an equation, you must do to the other.</li>
+  <li>To isolate a variable, undo operations in reverse order of PEMDAS.</li>
+  <li>An equation with no solution simplifies to a false statement (like 3 = 5).</li>
+  <li>An equation with infinite solutions simplifies to a true statement (like 4 = 4).</li>
+  <li>To solve a literal equation, isolate the requested variable just like any other equation.</li>
+  <li>Multiplying or dividing an inequality by a negative flips the inequality sign.</li>
+  <li>Compound inequalities ("and") describe an overlap; ("or") describe two separate regions.</li>
+  <li>Absolute value equations |x| = a split into two cases: x = a and x = −a.</li>
+  <li>Always check your solution by substituting it back into the original equation.</li>
+  <li>A proportion is two equal ratios; solve by cross-multiplying.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Linear Relationships</h3><ol class="fact-list">
+  <li>A linear equation graphs as a straight line and has a constant rate of change.</li>
+  <li>Slope tells direction: positive slopes rise left to right, negative slopes fall.</li>
+  <li>A horizontal line has a slope of 0; a vertical line has an undefined slope.</li>
+  <li>The x-intercept is where a line crosses the x-axis (y = 0).</li>
+  <li>The y-intercept is where a line crosses the y-axis (x = 0).</li>
+  <li>Two points always determine exactly one line.</li>
+  <li>A system of equations is a set of equations solved together, at the same time.</li>
+  <li>Systems can be solved by graphing, substitution, or elimination.</li>
+  <li>A system's solution is the point (or points) where all the equations are true together.</li>
+  <li>Parallel lines that never intersect form a system with no solution.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Polynomials &amp; Factoring</h3><ol class="fact-list">
+  <li>A polynomial is a sum of terms with non-negative whole-number exponents.</li>
+  <li>Monomial = 1 term, binomial = 2 terms, trinomial = 3 terms.</li>
+  <li>The degree of a polynomial is its highest exponent.</li>
+  <li>Add/subtract polynomials by combining like terms only.</li>
+  <li>Multiply polynomials by distributing every term in one by every term in the other.</li>
+  <li>Factoring is the reverse process of multiplying polynomials out.</li>
+  <li>A fully factored expression can't be broken down any further.</li>
+  <li>The zero product property: if ab = 0, then a = 0 or b = 0.</li>
+  <li>The zero product property is exactly how factoring solves quadratic equations.</li>
+  <li>Not every trinomial factors nicely — that's when the quadratic formula steps in.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Quadratics &amp; Parabolas</h3><ol class="fact-list">
+  <li>A quadratic function has the form y = ax² + bx + c, with a ≠ 0.</li>
+  <li>Every quadratic graphs as a parabola, a symmetric U-shaped curve.</li>
+  <li>If a &gt; 0, the parabola opens upward (has a minimum); if a &lt; 0, it opens downward (has a maximum).</li>
+  <li>The vertex is the highest or lowest point on a parabola.</li>
+  <li>The axis of symmetry is the vertical line x = −b/(2a) that splits the parabola in half.</li>
+  <li>The roots (zeros/solutions) of a quadratic are where the parabola crosses the x-axis.</li>
+  <li>A quadratic can have 0, 1, or 2 real roots.</li>
+  <li>Vertex form, y = a(x − h)² + k, shows the vertex directly as (h, k).</li>
+  <li>Completing the square converts standard form into vertex form.</li>
+  <li>Quadratics model motion under gravity, area problems, and projectile paths.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Exponents &amp; Radicals</h3><ol class="fact-list">
+  <li>An exponent tells you how many times to multiply the base by itself.</li>
+  <li>Exponent rules only combine terms that share the same base.</li>
+  <li>A negative exponent means "reciprocal," not "negative value."</li>
+  <li>A square root asks "what number times itself gives this?"</li>
+  <li>Every positive number has two square roots, one positive and one negative.</li>
+  <li>A perfect square is the square of a whole number (1, 4, 9, 16, 25...).</li>
+  <li>Radicals simplify by factoring out the largest perfect square.</li>
+  <li>You cannot combine radicals unless the number underneath matches.</li>
+  <li>Rational exponents connect roots and powers: a^(1/n) = ⁿ√a.</li>
+  <li>Scientific notation writes very large or small numbers as a × 10ⁿ, with 1 ≤ a &lt; 10.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Functions</h3><ol class="fact-list">
+  <li>A function assigns exactly one output to every input.</li>
+  <li>Domain = all valid inputs; range = all resulting outputs.</li>
+  <li>f(x) is read "f of x," and represents the output for input x.</li>
+  <li>The vertical line test checks whether a graph represents a function.</li>
+  <li>A function is increasing where its graph rises left to right, decreasing where it falls.</li>
+  <li>Rate of change describes how quickly a function's output changes relative to its input.</li>
+  <li>Linear functions have a constant rate of change; quadratics and exponentials don't.</li>
+  <li>A piecewise function uses different rules over different intervals of the domain.</li>
+  <li>Even functions are symmetric about the y-axis; odd functions are symmetric about the origin.</li>
+  <li>Composition of functions, f(g(x)), plugs one whole function in as another's input.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Exponential Functions &amp; Sequences</h3><ol class="fact-list">
+  <li>Exponential functions have the form y = a·bˣ, where b is the growth/decay factor.</li>
+  <li>If b &gt; 1, the function grows; if 0 &lt; b &lt; 1, it decays.</li>
+  <li>Growth formula: A = a(1 + r)ᵗ; decay formula: A = a(1 − r)ᵗ, where r is the rate as a decimal.</li>
+  <li>Exponential functions change by a constant percent, not a constant amount.</li>
+  <li>A sequence is an ordered list of numbers following a pattern.</li>
+  <li>An arithmetic sequence has a constant common difference between terms.</li>
+  <li>A geometric sequence has a constant common ratio between terms.</li>
+  <li>Arithmetic sequences correspond to linear growth; geometric sequences correspond to exponential growth.</li>
+  <li>The recursive formula for arithmetic sequences: aₙ = aₙ₋₁ + d.</li>
+  <li>The recursive formula for geometric sequences: aₙ = aₙ₋₁ · r.</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Statistics &amp; Data</h3><ol class="fact-list">
+  <li>Mean is the average; median is the middle value; mode is the most frequent value.</li>
+  <li>A scatter plot displays the relationship between two numeric variables.</li>
+  <li>Positive correlation: as one variable increases, so does the other.</li>
+  <li>Negative correlation: as one variable increases, the other decreases.</li>
+  <li>A line of best fit approximates the trend in scattered data with a single line.</li>
+  <li>Correlation does not prove causation — a relationship doesn't mean one causes the other.</li>
+  <li>An outlier is a data point far removed from the overall pattern.</li>
+  <li>Residuals measure the vertical distance between a data point and the line of best fit.</li>
+  <li>Two-way frequency tables organize categorical data by two variables at once.</li>
+  <li>Interpolation predicts within the data range; extrapolation predicts beyond it (and is riskier).</li>
+  </ol></div>
+
+  <div class="fact-group"><h3>Word Problems &amp; Modeling</h3><ol class="fact-list">
+  <li>Translate "is" as equals, "of" as multiply, and "more/less than" carefully — order matters.</li>
+  <li>Define your variable in words before writing any equation.</li>
+  <li>Consecutive integers are n, n+1, n+2...; consecutive even/odd integers skip by 2.</li>
+  <li>"At least" means ≥; "at most" means ≤; "more than" means &gt;; "fewer than" means &lt;.</li>
+  <li>Rate problems often use distance = rate × time.</li>
+  <li>Mixture problems combine two amounts with different values into one total.</li>
+  <li>Break-even problems occur where cost and revenue functions intersect.</li>
+  <li>Choose linear, quadratic, or exponential models based on how the situation actually changes (steady, curved, or by percent).</li>
+  <li>Always define a reasonable domain for a real-world function (e.g., time or quantity can't be negative).</li>
+  <li>Re-read the question after solving to make sure your final answer matches what was actually asked, in the right units.</li>
+  </ol></div>
+</template>
+
+<template id="tpl-cram">
+  <h2 class="title">Final Cram Sheet</h2>
+  <p class="sub">Every formula, condensed onto one dense page. Skim this the morning of the test.</p>
+
+  <div class="cram-grid">
+    <div class="cram-cell"><h4>Slope</h4><span class="f">m = (y₂−y₁)/(x₂−x₁)</span><span class="f">y = mx + b</span><span class="f">y − y₁ = m(x − x₁)</span><span class="f">∥ same m · ⟂ negative reciprocal</span></div>
+    <div class="cram-cell"><h4>Distance / Midpoint</h4><span class="f">d = √[(x₂−x₁)²+(y₂−y₁)²]</span><span class="f">M = ((x₁+x₂)/2, (y₁+y₂)/2)</span></div>
+    <div class="cram-cell"><h4>Quadratic Formula</h4><span class="f">x = (−b ± √(b²−4ac)) / 2a</span><span class="f">Discriminant: pos=2 roots, 0=1 root, neg=none</span></div>
+    <div class="cram-cell"><h4>Exponents</h4><span class="f">aᵐ·aⁿ=aᵐ⁺ⁿ  aᵐ/aⁿ=aᵐ⁻ⁿ</span><span class="f">(aᵐ)ⁿ=aᵐⁿ  a⁻ⁿ=1/aⁿ  a⁰=1</span></div>
+    <div class="cram-cell"><h4>Factoring</h4><span class="f">GCF first, always</span><span class="f">a²−b²=(a−b)(a+b)</span><span class="f">x²+bx+c → pq=c, p+q=b</span></div>
+    <div class="cram-cell"><h4>FOIL</h4><span class="f">(a+b)(c+d)=ac+ad+bc+bd</span></div>
+    <div class="cram-cell"><h4>Radicals</h4><span class="f">√(ab)=√a·√b</span><span class="f">only combine matching radicals</span><span class="f">no radicals in the denominator</span></div>
+    <div class="cram-cell"><h4>Functions</h4><span class="f">avg rate = (f(b)−f(a))/(b−a)</span><span class="f">f(x)+k up/down · f(x+k) left/right (flip sign)</span></div>
+    <div class="cram-cell"><h4>Sequences</h4><span class="f">Arithmetic: aₙ=a₁+(n−1)d</span><span class="f">Geometric: aₙ=a₁·r⁽ⁿ⁻¹⁾</span></div>
+    <div class="cram-cell"><h4>Exponential Models</h4><span class="f">Growth: A=a(1+r)ᵗ</span><span class="f">Decay: A=a(1−r)ᵗ</span></div>
+    <div class="cram-cell"><h4>Inequalities</h4><span class="f">÷ or × by negative → flip sign</span><span class="f">|x|&lt;a → −a&lt;x&lt;a  |x|&gt;a → x&lt;−a or x&gt;a</span></div>
+    <div class="cram-cell"><h4>Systems</h4><span class="f">Substitution: sub one eq into the other</span><span class="f">Elimination: match coefficients, add/subtract</span></div>
+    <div class="cram-cell"><h4>Parabolas</h4><span class="f">Vertex form: y=a(x−h)²+k → (h,k)</span><span class="f">Axis of symmetry: x=−b/2a</span></div>
+    <div class="cram-cell"><h4>Statistics</h4><span class="f">mean=average, median=middle, mode=most frequent</span><span class="f">P(event)=favorable/total</span></div>
+  </div>
+
+  <hr class="tear">
+  <div class="callout warn"><b>Last-second reminders:</b> flip the inequality sign on ÷ or × by a negative &middot; square-root both sides means ± &middot; GCF before any other factoring &middot; check for extraneous radical/rational solutions &middot; show work on every constructed-response — partial credit is real.</div>
+</template>
+
+<template id="tpl-nightbefore">
+  <h2 class="title">Night Before the Test</h2>
+  <p class="sub">A short, practical checklist — this is about being ready, not about learning anything new.</p>
+
+  <ul class="checklist">
+    <li><div class="box"></div><div><span class="timebox">DO</span><b>Skim the cram sheet once</b>, not the full binder. If a formula feels shaky, glance at just that one card.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DO</span><b>Pack your bag tonight:</b> two sharpened pencils, an eraser, your graphing calculator with fresh/charged batteries, your ID, and anything your school requires.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DO</span><b>Check your calculator is allowed</b> — no CAS models (like a TI-89 or TI-Nspire CAS). Clear old programs if your school requires it.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DO</span><b>Set two alarms</b> and lay out your clothes so the morning is calm and automatic.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DO</span><b>Get real sleep.</b> A well-rested brain outperforms a few extra hours of cramming almost every time.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DON'T</span><b>Start a brand-new topic tonight.</b> Trying to learn something unfamiliar this late adds stress without adding much score.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DON'T</span><b>Pull an all-nighter.</b> Missed sleep hurts working memory more than any last-minute review helps.</div></li>
+    <li><div class="box"></div><div><span class="timebox">MORNING</span><b>Eat a real breakfast</b> with some protein — your brain needs fuel for a 3-hour exam.</div></li>
+    <li><div class="box"></div><div><span class="timebox">MORNING</span><b>Arrive early.</b> Rushing in right at the admission deadline adds unnecessary adrenaline before you've even opened the booklet.</div></li>
+    <li><div class="box"></div><div><span class="timebox">DURING</span><b>Read every question fully before answering,</b> answer every multiple-choice question (no guessing penalty), and show your work on every constructed-response problem for partial credit.</div></li>
+  </ul>
+</template>
+
+<template id="tpl-practice1">
+  <h2 class="title">Mixed Practice — Set 1</h2>
+  <p class="sub">12 original questions mixing equations, systems, and factoring. Try each one, then click to reveal the answer.</p>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q1</span> Solve for x: 3x − 7 = 20</div>
+  <details><summary>Show Answer</summary><div class="ans">3x = 27 → x = 9</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q2</span> Solve for x: 5(x − 2) = 3x + 4</div>
+  <details><summary>Show Answer</summary><div class="ans">5x − 10 = 3x + 4 → 2x = 14 → x = 7</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q3</span> Find the slope of the line through (1, 4) and (5, −4).</div>
+  <details><summary>Show Answer</summary><div class="ans">m = (−4 − 4)/(5 − 1) = −8/4 = −2</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q4</span> Write, in point-slope form, the equation of the line with slope 3 through (2, 1).</div>
+  <details><summary>Show Answer</summary><div class="ans">y − 1 = 3(x − 2)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q5</span> Solve the system: y = 2x + 1 and y = −x + 7</div>
+  <details><summary>Show Answer</summary><div class="ans">2x + 1 = −x + 7 → 3x = 6 → x = 2, y = 5 → (2, 5)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q6</span> Factor: x² − 9</div>
+  <details><summary>Show Answer</summary><div class="ans">(x − 3)(x + 3)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q7</span> Factor: x² + 7x + 12</div>
+  <details><summary>Show Answer</summary><div class="ans">(x + 3)(x + 4)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q8</span> Solve by factoring: x² − 5x + 6 = 0</div>
+  <details><summary>Show Answer</summary><div class="ans">(x − 2)(x − 3) = 0 → x = 2 or x = 3</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q9</span> Use the quadratic formula: x² + 2x − 8 = 0</div>
+  <details><summary>Show Answer</summary><div class="ans">discriminant = 4 + 32 = 36 → x = (−2 ± 6)/2 → x = 2 or x = −4</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q10</span> Simplify: (3x²y)(4x³y²)</div>
+  <details><summary>Show Answer</summary><div class="ans">12x⁵y³</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q11</span> Simplify: (2x³)²</div>
+  <details><summary>Show Answer</summary><div class="ans">4x⁶</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q12</span> If f(x) = 2x² − x + 1, find f(3).</div>
+  <details><summary>Show Answer</summary><div class="ans">2(9) − 3 + 1 = 18 − 3 + 1 = 16</div></details></div>
+</template>
+
+<template id="tpl-practice2">
+  <h2 class="title">Mixed Practice — Set 2</h2>
+  <p class="sub">12 more original questions covering inequalities, radicals, sequences, and functions.</p>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q1</span> Solve the inequality: −2x + 5 &lt; 11</div>
+  <details><summary>Show Answer</summary><div class="ans">−2x &lt; 6 → x &gt; −3 (sign flips because we divided by a negative)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q2</span> Simplify: √50</div>
+  <details><summary>Show Answer</summary><div class="ans">√(25·2) = 5√2</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q3</span> Simplify: √18 + √8</div>
+  <details><summary>Show Answer</summary><div class="ans">3√2 + 2√2 = 5√2</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q4</span> Find the distance between (−1, 2) and (3, 5).</div>
+  <details><summary>Show Answer</summary><div class="ans">d = √[(3−(−1))² + (5−2)²] = √(16+9) = √25 = 5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q5</span> Find the midpoint of (−4, 6) and (2, −2).</div>
+  <details><summary>Show Answer</summary><div class="ans">M = ((−4+2)/2, (6+(−2))/2) = (−1, 2)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q6</span> Is 3, 7, 11, 15... arithmetic or geometric? Find the next term.</div>
+  <details><summary>Show Answer</summary><div class="ans">Arithmetic, common difference d = 4 → next term = 19</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q7</span> Is 2, 6, 18, 54... arithmetic or geometric? Find the next term.</div>
+  <details><summary>Show Answer</summary><div class="ans">Geometric, common ratio r = 3 → next term = 162</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q8</span> A table shows x: 1, 2, 3 and y: 5, 8, 11. Find the rate of change and an equation for y.</div>
+  <details><summary>Show Answer</summary><div class="ans">rate of change = 3 → y = 3x + 2 (check x=1: 3(1)+2=5 ✓)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q9</span> A population starts at 200 and grows 5% per year. Write the model and find the population after 3 years.</div>
+  <details><summary>Show Answer</summary><div class="ans">A = 200(1.05)ᵗ → A(3) = 200(1.157625) ≈ 232</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q10</span> Find the average rate of change of f(x) = x² from x = 1 to x = 4.</div>
+  <details><summary>Show Answer</summary><div class="ans">(f(4) − f(1))/(4 − 1) = (16 − 1)/3 = 5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q11</span> Find the domain of f(x) = 1/(x − 3).</div>
+  <details><summary>Show Answer</summary><div class="ans">All real numbers except x = 3 (division by zero is undefined there)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q12</span> A right triangle has legs of 6 and 8. Find the hypotenuse.</div>
+  <details><summary>Show Answer</summary><div class="ans">√(6² + 8²) = √(36 + 64) = √100 = 10</div></details></div>
+</template>
+
+<template id="tpl-practice3">
+  <h2 class="title">Mixed Practice — Set 3</h2>
+  <p class="sub">13 questions on foundations, expressions, polynomials, and statistics.</p>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q1</span> Evaluate: 6 + 2(5 − 3)²</div>
+  <details><summary>Show Answer</summary><div class="ans">6 + 2(4) = 6 + 8 = 14</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q2</span> Simplify: −5 + 3(−2)</div>
+  <details><summary>Show Answer</summary><div class="ans">−5 + (−6) = −11</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q3</span> Write 0.00045 in scientific notation.</div>
+  <details><summary>Show Answer</summary><div class="ans">4.5 × 10⁻⁴</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q4</span> Simplify: 5x − 3(2x − 4)</div>
+  <details><summary>Show Answer</summary><div class="ans">5x − 6x + 12 = −x + 12</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q5</span> Solve: 6x − 5 = 3x + 10</div>
+  <details><summary>Show Answer</summary><div class="ans">3x = 15 → x = 5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q6</span> Solve for w: P = 2l + 2w</div>
+  <details><summary>Show Answer</summary><div class="ans">w = (P − 2l)/2</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q7</span> Solve: 4x + 7 ≤ −1</div>
+  <details><summary>Show Answer</summary><div class="ans">4x ≤ −8 → x ≤ −2</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q8</span> Solve the system: 2x + y = 9, x − y = 3</div>
+  <details><summary>Show Answer</summary><div class="ans">Add: 3x = 12 → x = 4 → y = 1 → (4, 1)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q9</span> Multiply: (x + 5)(x² − 2x + 1)</div>
+  <details><summary>Show Answer</summary><div class="ans">x³ − 2x² + x + 5x² − 10x + 5 = x³ + 3x² − 9x + 5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q10</span> Write y = x² − 6x + 8 in vertex form and give the vertex.</div>
+  <details><summary>Show Answer</summary><div class="ans">y = (x²−6x+9) + 8 − 9 = (x−3)² − 1 → vertex (3, −1)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q11</span> Find the mean, median, and mode of: 3, 5, 5, 8, 9</div>
+  <details><summary>Show Answer</summary><div class="ans">mean = 6, median = 5, mode = 5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q12</span> A best-fit line is y = −3x + 40. Predict y when x = 6, and describe the correlation.</div>
+  <details><summary>Show Answer</summary><div class="ans">y = −18+40 = 22; negative correlation (negative slope)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q13</span> Find the domain of f(x) = √(2x − 6).</div>
+  <details><summary>Show Answer</summary><div class="ans">2x − 6 ≥ 0 → x ≥ 3</div></details></div>
+</template>
+
+<template id="tpl-practice4">
+  <h2 class="title">Mixed Practice — Set 4</h2>
+  <p class="sub">13 more questions mixing every unit in the binder — the closest thing to a full review in one page.</p>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q1</span> Simplify: 4/9 ÷ 2/3</div>
+  <details><summary>Show Answer</summary><div class="ans">4/9 × 3/2 = 12/18 = 2/3</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q2</span> Solve: |x − 4| = 9</div>
+  <details><summary>Show Answer</summary><div class="ans">x − 4 = 9 or x − 4 = −9 → x = 13 or x = −5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q3</span> Write the equation of the line through (0, −2) with slope 4.</div>
+  <details><summary>Show Answer</summary><div class="ans">y = 4x − 2 (b = −2 since the point is the y-intercept)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q4</span> A line is perpendicular to y = (2/5)x + 1. Find its slope.</div>
+  <details><summary>Show Answer</summary><div class="ans">−5/2 (negative reciprocal)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q5</span> Factor completely: 2x² − 8</div>
+  <details><summary>Show Answer</summary><div class="ans">2(x² − 4) = 2(x − 2)(x + 2) (GCF first, then difference of squares)</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q6</span> Solve by the quadratic formula: 2x² − 3x − 5 = 0</div>
+  <details><summary>Show Answer</summary><div class="ans">disc = 9+40=49 → x=(3±7)/4 → x = 5/2 or x = −1</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q7</span> Simplify: (3x⁴y²)³</div>
+  <details><summary>Show Answer</summary><div class="ans">27x¹²y⁶</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q8</span> Rationalize: 7/√5</div>
+  <details><summary>Show Answer</summary><div class="ans">(7√5)/5</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q9</span> For f(x) = 3x − 2 and g(x) = x + 4, find f(g(2)).</div>
+  <details><summary>Show Answer</summary><div class="ans">g(2) = 6 → f(6) = 16</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q10</span> A geometric sequence starts 5, 15, 45... Find the 6th term.</div>
+  <details><summary>Show Answer</summary><div class="ans">aₙ = 5·3⁽ⁿ⁻¹⁾ → a₆ = 5·3⁵ = 5·243 = 1215</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q11</span> An item costs $80 and depreciates 15% per year. Find its value after 4 years.</div>
+  <details><summary>Show Answer</summary><div class="ans">A = 80(0.85)⁴ ≈ 80(0.522) ≈ $41.76</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q12</span> Find the range of a box plot with min 12, Q1 18, median 24, Q3 30, max 40.</div>
+  <details><summary>Show Answer</summary><div class="ans">range = max − min = 40 − 12 = 28</div></details></div>
+
+  <div class="qcard"><div class="qhead"><span class="qnum">Q13</span> Solve the compound inequality: −3 &lt; 2x + 1 ≤ 9</div>
+  <details><summary>Show Answer</summary><div class="ans">subtract 1: −4 &lt; 2x ≤ 8 → divide by 2: −2 &lt; x ≤ 4</div></details></div>
+</template>
+
+<template id="tpl-miniquiz">
+  <h2 class="title">Mini Quizzes</h2>
+  <p class="sub">Short 5-question checks, one per major unit — a fast way to tell if a topic is ready or needs another look.</p>
+
+  <h3 style="color:var(--white); font-size:12px; font-family:'Press Start 2P',monospace; margin:22px 0 10px;">Quiz: Linear Equations &amp; Slope</h3>
+  <div class="quiz-q"><div class="qn">1. What is the slope of the line through (0,0) and (4,8)?</div><details><summary>Answer</summary><div class="ans">m = 8/4 = 2</div></details></div>
+  <div class="quiz-q"><div class="qn">2. In y = −3x + 7, what is the y-intercept?</div><details><summary>Answer</summary><div class="ans">7</div></details></div>
+  <div class="quiz-q"><div class="qn">3. Solve: 5x − 2 = 3x + 8</div><details><summary>Answer</summary><div class="ans">2x = 10 → x = 5</div></details></div>
+  <div class="quiz-q"><div class="qn">4. What slope is parallel to a line with slope −4?</div><details><summary>Answer</summary><div class="ans">−4</div></details></div>
+  <div class="quiz-q"><div class="qn">5. A horizontal line has what slope?</div><details><summary>Answer</summary><div class="ans">0</div></details></div>
+
+  <h3 style="color:var(--white); font-size:12px; font-family:'Press Start 2P',monospace; margin:22px 0 10px;">Quiz: Factoring &amp; Quadratics</h3>
+  <div class="quiz-q"><div class="qn">1. Factor: x² − 49</div><details><summary>Answer</summary><div class="ans">(x−7)(x+7)</div></details></div>
+  <div class="quiz-q"><div class="qn">2. Factor: x² + 9x + 20</div><details><summary>Answer</summary><div class="ans">(x+4)(x+5)</div></details></div>
+  <div class="quiz-q"><div class="qn">3. What does a discriminant of 0 tell you?</div><details><summary>Answer</summary><div class="ans">Exactly one real solution (a double root)</div></details></div>
+  <div class="quiz-q"><div class="qn">4. Find the vertex of y = (x+1)² − 6.</div><details><summary>Answer</summary><div class="ans">(−1, −6)</div></details></div>
+  <div class="quiz-q"><div class="qn">5. Solve by factoring: x² − x − 6 = 0</div><details><summary>Answer</summary><div class="ans">(x−3)(x+2)=0 → x=3 or x=−2</div></details></div>
+
+  <h3 style="color:var(--white); font-size:12px; font-family:'Press Start 2P',monospace; margin:22px 0 10px;">Quiz: Exponents &amp; Radicals</h3>
+  <div class="quiz-q"><div class="qn">1. Simplify: x⁵ · x²</div><details><summary>Answer</summary><div class="ans">x⁷</div></details></div>
+  <div class="quiz-q"><div class="qn">2. Simplify: 3⁻²</div><details><summary>Answer</summary><div class="ans">1/9</div></details></div>
+  <div class="quiz-q"><div class="qn">3. Simplify: √72</div><details><summary>Answer</summary><div class="ans">√(36·2)=6√2</div></details></div>
+  <div class="quiz-q"><div class="qn">4. Simplify: (x³)⁵</div><details><summary>Answer</summary><div class="ans">x¹⁵</div></details></div>
+  <div class="quiz-q"><div class="qn">5. Simplify: 4√3 − √3</div><details><summary>Answer</summary><div class="ans">3√3</div></details></div>
+
+  <h3 style="color:var(--white); font-size:12px; font-family:'Press Start 2P',monospace; margin:22px 0 10px;">Quiz: Functions &amp; Statistics</h3>
+  <div class="quiz-q"><div class="qn">1. If f(x) = x² − 1, find f(4).</div><details><summary>Answer</summary><div class="ans">15</div></details></div>
+  <div class="quiz-q"><div class="qn">2. What test checks whether a graph is a function?</div><details><summary>Answer</summary><div class="ans">The vertical line test</div></details></div>
+  <div class="quiz-q"><div class="qn">3. Find the median of: 6, 2, 9, 4, 11</div><details><summary>Answer</summary><div class="ans">Sorted: 2,4,6,9,11 → median = 6</div></details></div>
+  <div class="quiz-q"><div class="qn">4. A scatter plot trends downward left to right. What correlation is that?</div><details><summary>Answer</summary><div class="ans">Negative correlation</div></details></div>
+  <div class="quiz-q"><div class="qn">5. What is the domain of f(x) = 1/(x+2)?</div><details><summary>Answer</summary><div class="ans">All reals except x = −2</div></details></div>
+</template>
+
+<template id="tpl-examstyle">
+  <h2 class="title">Exam-Style Extended Response</h2>
+  <p class="sub">Full Part III/IV–style problems with a complete, step-by-step solution — modeled on the format and point value of the real Regents.</p>
+
+  <div class="qcard">
+    <div class="qhead"><span class="qnum">4 PTS</span> A company's profit is modeled by P(x) = −2x² + 40x − 150, where x is the number of units sold (in hundreds). Find the number of units that maximizes profit, and the maximum profit.</div>
+    <details><summary>Show Full Solution</summary><div class="ans">
+    Axis of symmetry: x = −b/(2a) = −40/(2·−2) = 10.<br>
+    Maximum profit: P(10) = −2(100) + 400 − 150 = −200 + 400 − 150 = 50.<br>
+    Selling 10 hundred (1,000) units maximizes profit at $50 (in whatever profit units the model uses).
+    </div></details>
+  </div>
+
+  <div class="qcard">
+    <div class="qhead"><span class="qnum">6 PTS</span> A town's population was 12,000 in 2010 and grows at 3% per year. (a) Write a function P(t) for population t years after 2010. (b) Find the population in 2020. (c) In what year does the population first exceed 18,000?</div>
+    <details><summary>Show Full Solution</summary><div class="ans">
+    (a) P(t) = 12000(1.03)ᵗ<br>
+    (b) t = 10 → P(10) = 12000(1.03)¹⁰ ≈ 12000(1.3439) ≈ 16,127<br>
+    (c) Solve 12000(1.03)ᵗ &gt; 18000 → (1.03)ᵗ &gt; 1.5 → t ≈ 13.7 (using logs or guess-and-check) → t = 14 is the first whole year it's exceeded → 2010+14 = 2024.
+    </div></details>
+  </div>
+
+  <div class="qcard">
+    <div class="qhead"><span class="qnum">4 PTS</span> The vertices of a triangle are A(1, 2), B(5, 2), and C(1, 6). Determine, with justification, whether the triangle is a right triangle, and find its area.</div>
+    <details><summary>Show Full Solution</summary><div class="ans">
+    AB is horizontal (same y) with length 5−1=4. AC is vertical (same x) with length 6−2=4. Since AB is horizontal and AC is vertical, they meet at a right angle at A — this is a right triangle.<br>
+    Area = ½ · base · height = ½ · 4 · 4 = 8 square units.
+    </div></details>
+  </div>
+
+  <div class="callout tip"><b>Grading reminder:</b> On the real exam, extended-response questions are scored with partial credit for correct setup and method even if the final numeric answer is off — always show every step, and clearly label your final answer.</div>
+</template>
+
+<script>
+const pages = ["overview",
+  "orderops","integersabs","fracdec","scinotation",
+  "expressions","equations",
+  "slope","distance","midpoint","inequalities","systems","polynomials","quadratic","parabola","exponents","factoring","foil","radicals","functions","domainrange",
+  "stats","scatter",
+  "calculator",
+  "regents","mistakes","top100","cram","nightbefore","practice1","practice2","practice3","practice4","miniquiz","examstyle"];
+const labels = {
+  overview:"Overview",
+  orderops:"Order of Operations", integersabs:"Integers & Absolute Value", fracdec:"Fractions & Decimals", scinotation:"Scientific Notation",
+  expressions:"Expressions", equations:"Multi-Step Equations",
+  slope:"Slope Formulas", distance:"Distance Formula", midpoint:"Midpoint Formula",
+  inequalities:"Inequalities", systems:"Systems of Equations", polynomials:"Polynomial Operations",
+  quadratic:"Quadratic Formula", parabola:"Graphing Parabolas",
+  exponents:"Exponent Rules", factoring:"Factoring Patterns", foil:"FOIL",
+  radicals:"Radical Rules", functions:"Function Formulas", domainrange:"Domain & Range",
+  stats:"Statistics Basics", scatter:"Scatter Plots & Correlation",
+  calculator:"Calculator",
+  regents:"Regents Review", mistakes:"Common Mistakes",
+  top100:"Top 100 Facts", cram:"Final Cram Sheet", nightbefore:"Night Before Guide",
+  practice1:"Mixed Practice — Set 1", practice2:"Mixed Practice — Set 2",
+  practice3:"Mixed Practice — Set 3", practice4:"Mixed Practice — Set 4",
+  miniquiz:"Mini Quizzes", examstyle:"Exam-Style Response"
+};
+
+const content = document.getElementById('content');
+const crumbs = document.getElementById('crumbs');
+const pageBadge = document.getElementById('pageBadge');
+const buttons = document.querySelectorAll('.nav-btn');
+
+function renderPage(id){
+  const tpl = document.getElementById('tpl-' + id);
+  content.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'page active';
+  div.appendChild(tpl.content.cloneNode(true));
+  content.appendChild(div);
+  crumbs.textContent = 'Study Terminal / ' + labels[id];
+  const idx = pages.indexOf(id);
+  pageBadge.textContent = String(idx).padStart(2,'0') + ' / ' + (pages.length - 1);
+  buttons.forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  window.scrollTo(0,0);
+}
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => renderPage(btn.dataset.page));
+});
+
+renderPage('overview');
+
+/* ---------- TI-84+ style calculator: state ---------- */
+let angleMode = 'deg';   // 'deg' or 'rad'
+let ansValue = 0;
+let xStore = 0;
+
+function setAngleMode(mode){
+  angleMode = mode;
+  const d = document.getElementById('degBtn'), r = document.getElementById('radBtn');
+  if(d) d.classList.toggle('active', mode === 'deg');
+  if(r) r.classList.toggle('active', mode === 'rad');
+}
+
+/* ---------- expression tokenizer ---------- */
+function tiTokenize(str){
+  const s = str.toLowerCase().replace(/\s+/g, '');
+  const tokens = [];
+  let i = 0;
+  while(i < s.length){
+    const c = s[i];
+    if(/[0-9.]/.test(c)){
+      let j = i;
+      while(j < s.length && /[0-9.]/.test(s[j])) j++;
+      const numStr = s.slice(i, j);
+      if((numStr.match(/\./g) || []).length > 1) throw new Error('bad number');
+      tokens.push({t:'num', v:parseFloat(numStr)});
+      i = j;
+    } else if(/[a-z]/.test(c)){
+      let j = i;
+      while(j < s.length && /[a-z]/.test(s[j])) j++;
+      tokens.push({t:'ident', v:s.slice(i, j)});
+      i = j;
+    } else if('+-*/^(),!'.includes(c)){
+      tokens.push({t:c});
+      i++;
+    } else {
+      throw new Error('invalid character: ' + c);
+    }
+  }
+  return tokens;
+}
+
+const TI_FUNCS = {sin:1,cos:1,tan:1,asin:1,acos:1,atan:1,log:1,ln:1,sqrt:1,abs:1,ncr:2,npr:2,mod:2,nthroot:2};
+
+/* ---------- recursive-descent parser ---------- */
+function tiParse(tokens){
+  let pos = 0;
+  function peek(){ return tokens[pos]; }
+  function next(){ return tokens[pos++]; }
+  function expect(t){ const tok = next(); if(!tok || tok.t !== t) throw new Error('expected ' + t); return tok; }
+
+  function canStartFactor(tok){
+    return tok && (tok.t === 'num' || tok.t === 'ident' || tok.t === '(');
+  }
+
+  function parseExpr(){
+    let node = parseTerm();
+    while(peek() && (peek().t === '+' || peek().t === '-')){
+      const op = next().t;
+      node = {op, a:node, b:parseTerm()};
+    }
+    return node;
+  }
+  function parseTerm(){
+    let node = parseUnary();
+    while(true){
+      if(peek() && (peek().t === '*' || peek().t === '/')){
+        const op = next().t;
+        node = {op, a:node, b:parseUnary()};
+      } else if(canStartFactor(peek())){
+        // implicit multiplication, e.g. 2pi, 3(x+1), 2sin(30)
+        node = {op:'*', a:node, b:parseUnary()};
+      } else break;
+    }
+    return node;
+  }
+  function parseUnary(){
+    if(peek() && peek().t === '-'){ next(); return {op:'neg', a:parseUnary()}; }
+    return parsePow();
+  }
+  function parsePow(){
+    const base = parsePostfix();
+    if(peek() && peek().t === '^'){
+      next();
+      const exp = parseUnary();
+      return {op:'^', a:base, b:exp};
+    }
+    return base;
+  }
+  function parsePostfix(){
+    let node = parsePrimary();
+    while(peek() && peek().t === '!'){
+      next();
+      node = {op:'!', a:node};
+    }
+    return node;
+  }
+  function parsePrimary(){
+    const tok = peek();
+    if(!tok) throw new Error('unexpected end of expression');
+    if(tok.t === 'num'){ next(); return {op:'num', v:tok.v}; }
+    if(tok.t === '('){
+      next();
+      const node = parseExpr();
+      expect(')');
+      return node;
+    }
+    if(tok.t === 'ident'){
+      next();
+      const name = tok.v;
+      if(name === 'pi') return {op:'const', v:Math.PI};
+      if(name === 'e') return {op:'const', v:Math.E};
+      if(name === 'ans') return {op:'ans'};
+      if(name === 'x') return {op:'var'};
+      if(TI_FUNCS.hasOwnProperty(name)){
+        expect('(');
+        const args = [parseExpr()];
+        while(peek() && peek().t === ','){ next(); args.push(parseExpr()); }
+        expect(')');
+        return {op:'func', name, args};
+      }
+      throw new Error('unknown identifier: ' + name);
+    }
+    throw new Error('unexpected token');
+  }
+
+  const result = parseExpr();
+  if(pos !== tokens.length) throw new Error('unexpected trailing input');
+  return result;
+}
+
+/* ---------- evaluator ---------- */
+function tiFactorial(n){
+  if(n < 0 || Math.abs(n - Math.round(n)) > 1e-9) throw new Error('factorial needs a non-negative integer');
+  n = Math.round(n);
+  if(n > 170) throw new Error('too large');
+  let r = 1;
+  for(let k = 2; k <= n; k++) r *= k;
+  return r;
+}
+function toRad(v){ return angleMode === 'deg' ? v * Math.PI / 180 : v; }
+function fromRad(v){ return angleMode === 'deg' ? v * 180 / Math.PI : v; }
+
+function tiEvalNode(node, xVal){
+  switch(node.op){
+    case 'num': return node.v;
+    case 'const': return node.v;
+    case 'ans': return ansValue;
+    case 'var': return (xVal !== undefined) ? xVal : xStore;
+    case 'neg': return -tiEvalNode(node.a, xVal);
+    case '!': return tiFactorial(tiEvalNode(node.a, xVal));
+    case '+': return tiEvalNode(node.a, xVal) + tiEvalNode(node.b, xVal);
+    case '-': return tiEvalNode(node.a, xVal) - tiEvalNode(node.b, xVal);
+    case '*': return tiEvalNode(node.a, xVal) * tiEvalNode(node.b, xVal);
+    case '/': return tiEvalNode(node.a, xVal) / tiEvalNode(node.b, xVal);
+    case '^': return Math.pow(tiEvalNode(node.a, xVal), tiEvalNode(node.b, xVal));
+    case 'func': {
+      const a = node.args.map(arg => tiEvalNode(arg, xVal));
+      switch(node.name){
+        case 'sin': return Math.sin(toRad(a[0]));
+        case 'cos': return Math.cos(toRad(a[0]));
+        case 'tan': return Math.tan(toRad(a[0]));
+        case 'asin': return fromRad(Math.asin(a[0]));
+        case 'acos': return fromRad(Math.acos(a[0]));
+        case 'atan': return fromRad(Math.atan(a[0]));
+        case 'log': return Math.log10(a[0]);
+        case 'ln': return Math.log(a[0]);
+        case 'sqrt': return Math.sqrt(a[0]);
+        case 'abs': return Math.abs(a[0]);
+        case 'ncr': return Math.round(tiFactorial(a[0]) / (tiFactorial(a[1]) * tiFactorial(a[0]-a[1])));
+        case 'npr': return Math.round(tiFactorial(a[0]) / tiFactorial(a[0]-a[1]));
+        case 'mod': return a[0] - a[1] * Math.floor(a[0]/a[1]);
+        case 'nthroot': return Math.pow(a[0], 1/a[1]);
+        default: throw new Error('unknown function');
+      }
+    }
+    default: throw new Error('bad node');
+  }
+}
+function tiEvalExpr(str, xVal){
+  const tokens = tiTokenize(str);
+  const ast = tiParse(tokens);
+  const val = tiEvalNode(ast, xVal);
+  if(typeof val !== 'number' || !isFinite(val)) throw new Error('invalid result');
+  return val;
+}
+
+/* ---------- basic calculator UI ---------- */
+function calcInput(v){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  if(el.textContent === '0' || el.textContent === 'Error'){
+    if(/^[0-9.]/.test(v) || ['+','*','/','^',','].indexOf(v) === -1){
+      el.textContent = v;
+    } else {
+      el.textContent = '0' + v;
+    }
+  } else {
+    el.textContent += v;
+  }
+}
+function calcClear(){
+  const el = document.getElementById('calcExpr');
+  const h = document.getElementById('calcHist');
+  if(el) el.textContent = '0';
+  if(h) h.textContent = '\u00a0';
+}
+function calcBackspace(){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  const t = el.textContent.slice(0, -1);
+  el.textContent = (t === '' || t === 'Erro') ? '0' : t;
+}
+function calcSquare(){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  el.textContent = '(' + el.textContent + ')^2';
+}
+function calcPercent(){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  el.textContent = '(' + el.textContent + ')/100';
+}
+function calcReciprocal(){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  el.textContent = '1/(' + el.textContent + ')';
+}
+function calcFactorial(){
+  const el = document.getElementById('calcExpr');
+  if(!el) return;
+  el.textContent = '(' + el.textContent + ')!';
+}
+function calcStoX(){
+  const el = document.getElementById('calcExpr');
+  const disp = document.getElementById('xStoreDisplay');
+  const hist = document.getElementById('calcHist');
+  if(!el) return;
+  try{
+    const val = tiEvalExpr(el.textContent);
+    xStore = val;
+    if(disp) disp.textContent = calcFormat(val);
+    if(hist) hist.textContent = el.textContent + ' \u2192 X';
+  }catch(err){
+    el.textContent = 'Error';
+  }
+}
+function calcFormat(n){
+  if(Math.abs(n) < 1e-10) n = 0;
+  return (Math.round(n * 1e8) / 1e8).toString();
+}
+function calcEvaluate(){
+  const el = document.getElementById('calcExpr');
+  const hist = document.getElementById('calcHist');
+  if(!el) return;
+  const raw = el.textContent;
+  try{
+    const val = tiEvalExpr(raw);
+    ansValue = val;
+    if(hist) hist.textContent = raw + ' =';
+    el.textContent = calcFormat(val);
+  }catch(err){
+    el.textContent = 'Error';
+  }
+}
+
+/* ---------- TI mode tabs (CALC / GRAPH / TABLE / STAT / ALGEBRA) ---------- */
+function tiShow(mode){
+  document.querySelectorAll('.ti-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.querySelectorAll('.ti-mode').forEach(m => m.classList.toggle('active', m.dataset.mode === mode));
+}
+
+/* ---------- Y= / GRAPH ---------- */
+function drawGraph(){
+  const canvas = document.getElementById('graphCanvas');
+  const info = document.getElementById('graphInfo');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const xmin = parseFloat(document.getElementById('winXmin').value);
+  const xmax = parseFloat(document.getElementById('winXmax').value);
+  const ymin = parseFloat(document.getElementById('winYmin').value);
+  const ymax = parseFloat(document.getElementById('winYmax').value);
+  const y1expr = document.getElementById('graphY1').value.trim();
+  const y2expr = document.getElementById('graphY2').value.trim();
+
+  ctx.clearRect(0, 0, W, H);
+  const toPx = (x) => (x - xmin) / (xmax - xmin) * W;
+  const toPy = (y) => H - (y - ymin) / (ymax - ymin) * H;
+
+  // grid + axes
+  ctx.strokeStyle = '#202022';
+  ctx.lineWidth = 1;
+  for(let gx = Math.ceil(xmin); gx <= xmax; gx++){
+    ctx.beginPath(); ctx.moveTo(toPx(gx), 0); ctx.lineTo(toPx(gx), H); ctx.stroke();
+  }
+  for(let gy = Math.ceil(ymin); gy <= ymax; gy++){
+    ctx.beginPath(); ctx.moveTo(0, toPy(gy)); ctx.lineTo(W, toPy(gy)); ctx.stroke();
+  }
+  ctx.strokeStyle = '#6a6a6c';
+  ctx.lineWidth = 1.5;
+  if(xmin <= 0 && xmax >= 0){ ctx.beginPath(); ctx.moveTo(toPx(0), 0); ctx.lineTo(toPx(0), H); ctx.stroke(); }
+  if(ymin <= 0 && ymax >= 0){ ctx.beginPath(); ctx.moveTo(0, toPy(0)); ctx.lineTo(W, toPy(0)); ctx.stroke(); }
+
+  function plot(expr, color){
+    if(!expr) return {zeros:[], sampleMin:Infinity, sampleMax:-Infinity};
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath();
+    let started = false, prevY = null, prevPx = null;
+    const zeros = [];
+    let sampleMin = Infinity, sampleMax = -Infinity, sampleMinX = 0, sampleMaxX = 0;
+    const steps = W;
+    for(let px = 0; px <= steps; px++){
+      const x = xmin + (px/steps) * (xmax - xmin);
+      let y;
+      try{ y = tiEvalExpr(expr, x); }catch(e){ y = null; }
+      if(y !== null && isFinite(y)){
+        if(y < sampleMin){ sampleMin = y; sampleMinX = x; }
+        if(y > sampleMax){ sampleMax = y; sampleMaxX = x; }
+        if(prevY !== null && (prevY < 0) !== (y < 0) && Math.abs(y - prevY) < (ymax-ymin)){
+          zeros.push(x);
+        }
+        const py = toPy(y);
+        const bigJump = prevY !== null && Math.abs(y - prevY) > (ymax - ymin) * 1.5;
+        if(!started || bigJump){ ctx.moveTo(toPx(x), py); started = true; }
+        else { ctx.lineTo(toPx(x), py); }
+        prevY = y;
+      } else {
+        prevY = null; started = false;
+      }
+    }
+    ctx.stroke();
+    return {zeros, sampleMin, sampleMax, sampleMinX, sampleMaxX};
+  }
+
+  const r1 = plot(y1expr, '#f0f0f0');
+  const r2 = plot(y2expr, '#9a9a9c');
+
+  let msg = 'Y\u2081 approx. zero(s) near x \u2248 ' + (r1.zeros.length ? r1.zeros.map(z=>calcFormat(z)).join(', ') : 'none found in window');
+  msg += '\nY\u2081 min sampled \u2248 ' + calcFormat(r1.sampleMin) + ' at x\u2248' + calcFormat(r1.sampleMinX) +
+         '   max sampled \u2248 ' + calcFormat(r1.sampleMax) + ' at x\u2248' + calcFormat(r1.sampleMaxX);
+  if(y2expr){
+    msg += '\nY\u2082 approx. zero(s) near x \u2248 ' + (r2.zeros.length ? r2.zeros.map(z=>calcFormat(z)).join(', ') : 'none found in window');
+  }
+  if(info) info.textContent = msg;
+}
+
+/* ---------- TABLE ---------- */
+function buildTable(){
+  const expr = document.getElementById('tableY1').value.trim();
+  const start = parseFloat(document.getElementById('tblStart').value);
+  const step = parseFloat(document.getElementById('tblStep').value) || 1;
+  const out = document.getElementById('tableOut');
+  if(!out) return;
+  let html = '<tr><th>X</th><th>Y\u2081</th></tr>';
+  for(let i = 0; i < 15; i++){
+    const x = start + i * step;
+    let yText;
+    try{ yText = calcFormat(tiEvalExpr(expr, x)); }catch(e){ yText = 'ERR'; }
+    html += '<tr><td>' + calcFormat(x) + '</td><td>' + yText + '</td></tr>';
+  }
+  out.innerHTML = html;
+}
+
+/* ---------- STAT ---------- */
+function parseList(str){
+  return str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+}
+function compute1VarStats(){
+  const box = document.getElementById('stat1Result');
+  const data = parseList(document.getElementById('stat1List').value);
+  if(data.length === 0){ box.textContent = 'Enter at least one number.'; return; }
+  const n = data.length;
+  const sum = data.reduce((a,b) => a+b, 0);
+  const mean = sum / n;
+  const sorted = [...data].sort((a,b) => a-b);
+  const median = n % 2 ? sorted[(n-1)/2] : (sorted[n/2-1] + sorted[n/2]) / 2;
+  const variance = data.reduce((a,b) => a + Math.pow(b-mean,2), 0) / (n - 1 > 0 ? n - 1 : 1);
+  const sampleSD = Math.sqrt(variance);
+  const popSD = Math.sqrt(data.reduce((a,b) => a + Math.pow(b-mean,2), 0) / n);
+  box.textContent =
+    'n = ' + n +
+    '\n\u03a3x = ' + calcFormat(sum) +
+    '\nx\u0304 (mean) = ' + calcFormat(mean) +
+    '\nmedian = ' + calcFormat(median) +
+    '\nSx (sample stdev) = ' + calcFormat(sampleSD) +
+    '\n\u03c3x (population stdev) = ' + calcFormat(popSD) +
+    '\nminX = ' + calcFormat(sorted[0]) + '   maxX = ' + calcFormat(sorted[n-1]);
+}
+function computeRegression(){
+  const box = document.getElementById('statRegResult');
+  const xs = parseList(document.getElementById('statX').value);
+  const ys = parseList(document.getElementById('statY').value);
+  if(xs.length < 2 || xs.length !== ys.length){ box.textContent = 'Enter matching X and Y lists with at least 2 points.'; return; }
+  const n = xs.length;
+  const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0);
+  const meanX = sumX/n, meanY = sumY/n;
+  let sxy=0, sxx=0, syy=0;
+  for(let i=0;i<n;i++){ sxy += (xs[i]-meanX)*(ys[i]-meanY); sxx += Math.pow(xs[i]-meanX,2); syy += Math.pow(ys[i]-meanY,2); }
+  const m = sxy/sxx;
+  const b = meanY - m*meanX;
+  const r = sxy / Math.sqrt(sxx*syy);
+  box.textContent =
+    'Linear Regression: y = ax + b' +
+    '\na (slope) = ' + calcFormat(m) +
+    '\nb (intercept) = ' + calcFormat(b) +
+    '\nr (correlation) = ' + calcFormat(r) +
+    '\nr\u00b2 = ' + calcFormat(r*r) +
+    '\nEquation: y = ' + calcFormat(m) + 'x ' + (b>=0?'+ '+calcFormat(b):'- '+calcFormat(Math.abs(b)));
+
+  const canvas = document.getElementById('regCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const padX = (xMax-xMin || 1) * 0.15, padY = (yMax-yMin || 1) * 0.15;
+  const gxmin = xMin-padX, gxmax = xMax+padX, gymin = yMin-padY, gymax = yMax+padY;
+  const toPx = x => (x-gxmin)/(gxmax-gxmin)*W;
+  const toPy = y => H - (y-gymin)/(gymax-gymin)*H;
+  ctx.strokeStyle = '#6a6a6c'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(0.5,0.5,W-1,H-1);
+  ctx.fillStyle = '#f0f0f0';
+  for(let i=0;i<n;i++){ ctx.beginPath(); ctx.arc(toPx(xs[i]), toPy(ys[i]), 4, 0, Math.PI*2); ctx.fill(); }
+  ctx.strokeStyle = '#9a9a9c'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(toPx(gxmin), toPy(m*gxmin+b)); ctx.lineTo(toPx(gxmax), toPy(m*gxmax+b)); ctx.stroke();
+}
+
+/* ---------- algebra tool solvers ---------- */
+function showTool(name){
+  document.querySelectorAll('.tool-tab').forEach(t => t.classList.toggle('active', t.dataset.tool === name));
+  document.querySelectorAll('.tool-body').forEach(b => b.classList.toggle('active', b.dataset.tool === name));
+}
+function toolNum(id){
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? 0 : v;
+}
+function toolFmt(n){
+  if(Math.abs(n) < 1e-9) n = 0;
+  return (Math.round(n * 1e6) / 1e6).toString();
+}
+function computeSlope(){
+  const x1=toolNum('slopeX1'), y1=toolNum('slopeY1'), x2=toolNum('slopeX2'), y2=toolNum('slopeY2');
+  const box = document.getElementById('slopeResult');
+  if(x2 - x1 === 0){
+    box.textContent = 'Slope is undefined (vertical line): x = ' + toolFmt(x1);
+    return;
+  }
+  const m = (y2 - y1) / (x2 - x1);
+  const b = y1 - m * x1;
+  const line = (m === 0)
+    ? 'y = ' + toolFmt(y1) + ' (horizontal line)'
+    : 'y = ' + toolFmt(m) + 'x ' + (b >= 0 ? '+ ' + toolFmt(b) : '- ' + toolFmt(Math.abs(b)));
+  box.textContent = 'Slope: m = (' + toolFmt(y2) + ' - ' + toolFmt(y1) + ') / (' + toolFmt(x2) + ' - ' + toolFmt(x1) + ') = ' + toolFmt(m) +
+    '\nEquation: ' + line;
+}
+function computeDistMid(){
+  const x1=toolNum('dmX1'), y1=toolNum('dmY1'), x2=toolNum('dmX2'), y2=toolNum('dmY2');
+  const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  document.getElementById('dmResult').textContent =
+    'Distance: d = \u221a[(' + toolFmt(x2) + '-' + toolFmt(x1) + ')\u00b2 + (' + toolFmt(y2) + '-' + toolFmt(y1) + ')\u00b2] = ' + toolFmt(d) +
+    '\nMidpoint: M = (' + toolFmt(mx) + ', ' + toolFmt(my) + ')';
+}
+function computeLinear(){
+  const a=toolNum('linA'), b=toolNum('linB'), c=toolNum('linC');
+  const box = document.getElementById('linResult');
+  if(a === 0){
+    box.textContent = (b === c)
+      ? 'a = 0: every value of x works (infinite solutions), since ' + toolFmt(b) + ' = ' + toolFmt(c) + ' is always true.'
+      : 'a = 0: no solution, since ' + toolFmt(b) + ' \u2260 ' + toolFmt(c) + '.';
+    return;
+  }
+  const x = (c - b) / a;
+  box.textContent = toolFmt(a) + 'x + ' + toolFmt(b) + ' = ' + toolFmt(c) +
+    '\n' + toolFmt(a) + 'x = ' + toolFmt(c - b) +
+    '\nx = ' + toolFmt(x);
+}
+function computeQuad(){
+  const a=toolNum('quadA'), b=toolNum('quadB'), c=toolNum('quadC');
+  const box = document.getElementById('quadResult');
+  if(a === 0){
+    box.textContent = 'a cannot be 0 for a quadratic — try the Linear Equation solver instead.';
+    return;
+  }
+  const disc = b*b - 4*a*c;
+  const axis = -b / (2*a);
+  const vy = a*axis*axis + b*axis + c;
+  let rootsText;
+  if(disc > 0){
+    const r1 = (-b + Math.sqrt(disc)) / (2*a);
+    const r2 = (-b - Math.sqrt(disc)) / (2*a);
+    rootsText = '2 real roots: x = ' + toolFmt(r1) + ' or x = ' + toolFmt(r2);
+  } else if(disc === 0){
+    rootsText = '1 real root (double root): x = ' + toolFmt(-b/(2*a));
+  } else {
+    const re = -b/(2*a);
+    const im = Math.sqrt(-disc)/(2*a);
+    rootsText = 'No real roots: x = ' + toolFmt(re) + ' \u00b1 ' + toolFmt(im) + 'i';
+  }
+  box.textContent = 'Discriminant: b\u00b2 − 4ac = ' + toolFmt(disc) +
+    '\n' + rootsText +
+    '\nAxis of symmetry: x = ' + toolFmt(axis) +
+    '\nVertex: (' + toolFmt(axis) + ', ' + toolFmt(vy) + ')';
+}
+function computeSystem(){
+  const a1=toolNum('sysA1'), b1=toolNum('sysB1'), c1=toolNum('sysC1');
+  const a2=toolNum('sysA2'), b2=toolNum('sysB2'), c2=toolNum('sysC2');
+  const box = document.getElementById('sysResult');
+  const det = a1*b2 - a2*b1;
+  if(det === 0){
+    box.textContent = 'Determinant = 0: the lines are parallel — either no solution (distinct parallel lines) or infinitely many solutions (the same line), depending on the constants.';
+    return;
+  }
+  const x = (c1*b2 - c2*b1) / det;
+  const y = (a1*c2 - a2*c1) / det;
+  box.textContent = 'Using elimination (Cramer\'s rule):' +
+    '\nx = (c\u2081b\u2082 − c\u2082b\u2081) / (a\u2081b\u2082 − a\u2082b\u2081) = ' + toolFmt(x) +
+    '\ny = (a\u2081c\u2082 − a\u2082c\u2081) / (a\u2081b\u2082 − a\u2082b\u2081) = ' + toolFmt(y) +
+    '\nSolution: (' + toolFmt(x) + ', ' + toolFmt(y) + ')';
+}
+
+/* ---------- collapsible sidebar ---------- */
+const sidebar = document.getElementById('sidebar');
+const collapseBtn = document.getElementById('collapseBtn');
+collapseBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+});
+
+/* ---------- "made by sskies" decode animation in sidebar footer ---------- */
+const target = "MADE BY SSKIES";
+const scrambleChars = "!<>-_\\/[]{}=+*^?#";
+const decodeEl = document.getElementById('sidebarDecode');
+let frame = 0;
+const revealSpeed = 3;
+
+function renderDecodeFrame(){
+  let out = "";
+  const lockedCount = Math.floor(frame / revealSpeed);
+  for(let i=0;i<target.length;i++){
+    if(target[i] === " "){ out += " "; continue; }
+    out += (i < lockedCount) ? target[i] : scrambleChars[Math.floor(Math.random()*scrambleChars.length)];
+  }
+  decodeEl.innerHTML = out + '<span class="cursor"></span>';
+  frame++;
+  if(lockedCount <= target.length){
+    setTimeout(renderDecodeFrame, 30);
+  } else {
+    decodeEl.innerHTML = target + '<span class="cursor"></span>';
+  }
+}
+renderDecodeFrame();
+
+/* ---------- ASCII starfield background ---------- */
+const canvas = document.getElementById('ascii-bg');
+const ctx = canvas.getContext('2d');
+let W, H, cells = [];
+const CHARSET = ['.', ':', '+', '*', 'x', '\u00b7', '\u00b0'];
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  const cell = 26;
+  const cols = Math.ceil(W / cell);
+  const rows = Math.ceil(H / cell);
+  cells = [];
+  for(let i=0;i<cols*rows;i++){
+    if(Math.random() < 0.05){
+      cells.push({
+        x: (i % cols) * cell + cell/2,
+        y: Math.floor(i / cols) * cell + cell/2,
+        ch: CHARSET[Math.floor(Math.random()*CHARSET.length)],
+        base: Math.random()*0.4 + 0.06,
+        speed: Math.random()*0.6 + 0.15,
+        phase: Math.random()*Math.PI*2,
+        size: Math.random()*6 + 8
+      });
+    }
+  }
+}
+window.addEventListener('resize', resize);
+resize();
+
+function draw(t){
+  ctx.clearRect(0,0,W,H);
+  ctx.textAlign = 'center';
+  for(const c of cells){
+    const tw = c.base + Math.sin(t*0.001*c.speed + c.phase) * 0.3;
+    const alpha = Math.max(0, Math.min(1, tw));
+    ctx.font = c.size + 'px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(200,200,200,' + alpha.toFixed(2) + ')';
+    ctx.fillText(c.ch, c.x, c.y);
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
