@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKIES | Unified Dashboard</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --panel: rgba(17, 17, 17, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #ffffff;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Animated Star Field Background */
+        #canvas-bg { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        /* Layout */
+        .app-container { display: flex; height: 100vh; padding: 20px; gap: 20px; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 80px;
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+
+        .nav-item {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.1); border-color: var(--border); }
+
+        /* Main Area */
+        .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+
+        /* Hero */
+        .hero { text-align: center; z-index: 1; }
+        h1 { font-size: 8rem; font-weight: 100; letter-spacing: -0.05em; margin-bottom: -10px; }
+        .greeting { color: var(--text-dim); font-size: 1.2rem; margin-bottom: 40px; }
+
+        /* Search */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .search-container:focus-within {
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .cmd-key {
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="nav-item">◈</div>
+            <div class="nav-item">⌕</div>
+            <div class="nav-item">⚙</div>
+        </nav>
+
+        <main class="main">
+            <div class="hero">
+                <h1>SKIES</h1>
+                <p class="greeting">Welcome back, Architect.</p>
+                
+                <div class="search-container">
+                    <input type="text" placeholder="Search games or commands..." id="search">
+                    <span class="cmd-key">⌘K</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // High-Performance Starfield
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<200; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    vx: (Math.random() - 0.5) * 0.2
+                });
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            stars.forEach(s => {
+                s.x += s.vx;
+                if(s.x > canvas.width) s.x = 0;
+                if(s.x < 0) s.x = canvas.width;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+
+        // Command Palette Listener
+        window.addEventListener('keydown', (e) => {
+            if (e.metaKey && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('search').focus();
+            }
+        });
+    </script>
+</body>
+</html>
